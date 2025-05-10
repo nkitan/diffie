@@ -31,11 +31,17 @@ A beautiful web-based file diff viewer that displays the differences between two
 
 ### Developer Configuration
 
-As a developer, you can configure the base path in the server.js file:
+As a developer, you can configure the application settings in the `config.js` file:
 
 ```javascript
-// DEVELOPER CONFIGURATION: Set your base path here
-const BASE_PATH = process.env.BASE_PATH || 'd:/Work/confdiff';  // Change this to your desired path
+// config.js
+module.exports = {
+  // Base path where all the files to be compared are located
+  BASE_PATH: 'd:/Work/confdiff',
+  
+  // Port for the server to listen on
+  PORT: 3000
+};
 ```
 
 ### Via Web Interface
@@ -79,19 +85,19 @@ http://localhost:3000/?file1=sample1.txt&file2=sample2.txt
 
 ### Environment Variables
 
-You can also set the base path by using the `BASE_PATH` environment variable before starting the server:
+You can override the port setting by using the `PORT` environment variable before starting the server:
 
 ```
 # On Windows
-set BASE_PATH=C:\path\to\your\files
+set PORT=8080
 npm start
 
 # On Linux/Mac
-export BASE_PATH=/path/to/your/files
+export PORT=8080
 npm start
 ```
 
-This allows you to change the base path without modifying the code.
+This allows you to change the port without modifying the configuration file.
 
 ## Technologies Used
 

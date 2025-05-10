@@ -54,7 +54,7 @@
           </div>
           <button id="compare-server-btn" class="primary-btn">
             <i class="fas fa-code-compare"></i>
-            Compare Server Files
+            Compare Files
           </button>
         </div>
       </div>
@@ -62,28 +62,28 @@
       <div class="tab-content hidden" id="local-files-tab">
         <div class="file-inputs">
           <div class="file-input-group">
-            <label for="file1-upload">File 1:</label>
+            <label for="file1-upload">File 1 Path:</label>
             <div class="file-upload">
               <input type="file" id="file1-upload" class="file-upload-input">
               <label for="file1-upload" class="file-upload-label">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <span id="file1-upload-name">Choose a file</span>
+                <span style="font: small;" id="file1-upload-name">Select first file</span>
               </label>
             </div>
           </div>
           <div class="file-input-group">
-            <label for="file2-upload">File 2:</label>
+            <label for="file2-upload">File 2 Path:</label>
             <div class="file-upload">
               <input type="file" id="file2-upload" class="file-upload-input">
               <label for="file2-upload" class="file-upload-label">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <span id="file2-upload-name">Choose a file</span>
+                <span style="font:small;" id="file2-upload-name">Select second file</span>
               </label>
             </div>
           </div>
           <button id="compare-local-btn" class="primary-btn">
             <i class="fas fa-code-compare"></i>
-            Compare Local Files
+            Compare Files
           </button>
         </div>
       </div>
@@ -130,7 +130,7 @@
             </div>
             <div class="empty-state">
               <i class="fas fa-code-compare"></i>
-              <p>Enter file paths and click "Compare Files" to see the differences</p>
+              <p>Select files above and click "Compare Files" to see the differences</p>
             </div>
             <div class="diff-view hidden">
               <div class="file1-content"></div>

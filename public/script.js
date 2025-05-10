@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorToast = document.getElementById('error-toast');
   const errorMessage = document.getElementById('error-message');
   const toastClose = document.querySelector('.toast-close');
+  const appInfo = document.querySelector('.app-info');
+  
+  // Fetch app configuration
+  fetchAppConfig();
   
   // Check URL parameters on load
   checkUrlParams();
@@ -61,19 +65,71 @@ document.addEventListener('DOMContentLoaded', () => {
   // Functions
 
   function checkUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const file1 = urlParams.get('file1');
-    const file2 = urlParams.get('file2');
-    const mode = urlParams.get('mode') || 'server';
-    
-    if (file1 && file2) {
-      if (mode === 'server') {
-        switchTab('server-files');
-        file1PathInput.value = file1;
-        file2PathInput.value = file2;
-        compareServerFiles();
-      }
-    }
+    // We'll check the app configuration first to see if we should process URL params
+    fetch('/api/info')
+      .then(response => response.json())
+      .then(data => {
+        // Only process URL params if the relevant tab is visible
+        if (data.ui && data.ui.TABS) {
+          const tabsVisible = data.ui.TABS.VISIBLE;
+          
+          // If only local tab is visible, don't process server file params
+          if (tabsVisible === 'local') {
+            return;
+          }
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          const file1 = urlParams.get('file1');
+          const file2 = urlParams.get('file2');
+          const mode = urlParams.get('mode') || 'server';
+          
+          if (file1 && file2) {
+            if (mode === 'server') {
+              // Only switch tab if tab switching is allowed or both tabs are visible
+              if (tabsVisible === 'both' && data.ui.TABS.ALLOW_SWITCHING !== false) {
+                switchTab('server-files');
+              }
+              
+              file1PathInput.value = file1;
+              file2PathInput.value = file2;
+              compareServerFiles();
+            }
+          }
+        } else {
+          // Default behavior if no tab configuration
+          const urlParams = new URLSearchParams(window.location.search);
+          const file1 = urlParams.get('file1');
+          const file2 = urlParams.get('file2');
+          const mode = urlParams.get('mode') || 'server';
+          
+          if (file1 && file2) {
+            if (mode === 'server') {
+              switchTab('server-files');
+              file1PathInput.value = file1;
+              file2PathInput.value = file2;
+              compareServerFiles();
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching app configuration:', error);
+        
+        // Fallback to default behavior
+        const urlParams = new URLSearchParams(window.location.search);
+        const file1 = urlParams.get('file1');
+        const file2 = urlParams.get('file2');
+        const mode = urlParams.get('mode') || 'server';
+        
+        if (file1 && file2) {
+          if (mode === 'server') {
+            switchTab('server-files');
+            file1PathInput.value = file1;
+            file2PathInput.value = file2;
+            compareServerFiles();
+          }
+        }
+      });
   }
 
   function switchTab(tabId) {
@@ -366,5 +422,94 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       successToast.classList.add('hidden');
     }, 3000);
+  }
+  
+  // Fetch application configuration from the server
+  function fetchAppConfig() {
+    fetch('/api/info')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch app configuration');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Apply UI configuration
+        if (data.ui) {
+          // Handle app info visibility
+          if (data.ui.SHOW_APP_INFO === false) {
+            // Hide the app info section if configured to be hidden
+            const appInfo = document.querySelector('.app-info');
+            if (appInfo) {
+              appInfo.classList.add('hidden');
+            }
+          }
+          
+          // Handle word wrap default setting
+          if (data.ui.WORD_WRAP_DEFAULT === true) {
+            // Enable word wrap by default
+            diffContent.classList.add('word-wrap');
+            wordWrapBtn.classList.add('active');
+          }
+          
+          // Handle navbar title visibility
+          if (data.ui.SHOW_NAVBAR_TITLE === false) {
+            // Hide the "ConfDiff" title in the navbar
+            const navbarTitle = document.querySelector('.logo h1');
+            if (navbarTitle) {
+              navbarTitle.classList.add('hidden');
+            }
+          }
+          
+          // Handle tab visibility and switching
+          if (data.ui.TABS) {
+            const tabsContainer = document.querySelector('.tabs');
+            const serverTabBtn = document.querySelector('.tab-btn[data-tab="server-files"]');
+            const localTabBtn = document.querySelector('.tab-btn[data-tab="local-files"]');
+            const serverTabContent = document.getElementById('server-files-tab');
+            const localTabContent = document.getElementById('local-files-tab');
+            
+            // Configure tab visibility
+            if (data.ui.TABS.VISIBLE === 'server') {
+              // Show only server tab
+              if (localTabBtn) localTabBtn.classList.add('hidden');
+              if (localTabContent) localTabContent.classList.add('hidden');
+              if (serverTabBtn) serverTabBtn.classList.add('active');
+              if (serverTabContent) serverTabContent.classList.remove('hidden');
+              
+              // Hide the tabs container if only one tab is visible
+              if (tabsContainer) tabsContainer.classList.add('hidden');
+            } 
+            else if (data.ui.TABS.VISIBLE === 'local') {
+              // Show only local tab
+              if (serverTabBtn) serverTabBtn.classList.add('hidden');
+              if (serverTabContent) serverTabContent.classList.add('hidden');
+              if (localTabBtn) localTabBtn.classList.add('active');
+              if (localTabContent) localTabContent.classList.remove('hidden');
+              
+              // Hide the tabs container if only one tab is visible
+              if (tabsContainer) tabsContainer.classList.add('hidden');
+            }
+            else {
+              // Both tabs are visible, check if switching is allowed
+              if (data.ui.TABS.ALLOW_SWITCHING === false) {
+                // Disable tab switching by removing event listeners
+                tabBtns.forEach(btn => {
+                  // Clone the button to remove all event listeners
+                  const newBtn = btn.cloneNode(true);
+                  btn.parentNode.replaceChild(newBtn, btn);
+                  
+                  // Add a visual indication that tabs are disabled
+                  newBtn.style.opacity = '0.7';
+                  newBtn.style.cursor = 'default';
+                });
+              }
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching app configuration:', error);
+      });
   }
 });

@@ -2,14 +2,15 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const Diff = require('diff');
+const config = require('./config');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || config.PORT;
 
-// DEVELOPER CONFIGURATION: Set your base path here
+// Get base path from config file
 // This is the directory where all the files to be compared are located
 // Users will provide paths relative to this directory
-const BASE_PATH = process.env.BASE_PATH || 'd:/Work/confdiff';  // Change this to your desired path
+const BASE_PATH = config.BASE_PATH;
 
 // Parse JSON request bodies
 app.use(express.json());
@@ -92,7 +93,9 @@ app.get('/api/info', (req, res) => {
   res.json({ 
     name: 'ConfDiff',
     description: 'A beautiful file diff viewer',
-    version: '1.0.0'
+    version: '1.0.0',
+    basePath: BASE_PATH,
+    ui: config.UI || { SHOW_APP_INFO: true }
   });
 });
 
@@ -102,5 +105,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`ConfDiff server running on http://localhost:${PORT}`);
+  console.log(`Base path for file comparisons: ${BASE_PATH}`);
 });
