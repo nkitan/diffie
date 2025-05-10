@@ -1,0 +1,6 @@
+This is a sample file for testing the diff viewer.
+It contains some text that will be compared with another file.
+This line will be the same in both files.
+This line will be removed in the second file.
+This line will be unchanged.
+The end of the first file.

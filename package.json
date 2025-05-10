@@ -1,0 +1,13 @@
+{
+  "name": "confdiff",
+  "version": "1.0.0",
+  "description": "A beautiful, simple file diff viewer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "diff": "^5.1.0"
+  }
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautiful File Diff Viewer</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-code-compare"></i>
+        <h1>ConfDiff</h1>
+      </div>
+      <div class="theme-toggle">
+        <i class="fas fa-moon"></i>
+        <div class="toggle-switch">
+          <input type="checkbox" id="theme-toggle-checkbox">
+          <label for="theme-toggle-checkbox"></label>
+        </div>
+        <i class="fas fa-sun"></i>
+      </div>
+    </header>
+
+    <main>
+      <div class="file-inputs">
+        <div class="file-input-group">
+          <label for="file1-path">File 1 Path:</label>
+          <div class="input-with-icon">
+            <i class="fas fa-file-code"></i>
+            <input type="text" id="file1-path" placeholder="Enter path to first file">
+          </div>
+        </div>
+        <div class="file-input-group">
+          <label for="file2-path">File 2 Path:</label>
+          <div class="input-with-icon">
+            <i class="fas fa-file-code"></i>
+            <input type="text" id="file2-path" placeholder="Enter path to second file">
+          </div>
+        </div>
+        <button id="compare-btn" class="primary-btn">
+          <i class="fas fa-code-compare"></i>
+          Compare Files
+        </button>
+      </div>
+
+      <div class="diff-container">
+        <div class="diff-header">
+          <div class="file-info">
+            <span id="file1-name">No file selected</span>
+            <span id="file2-name">No file selected</span>
+          </div>
+          <div class="diff-controls">
+            <button id="side-by-side-btn" class="control-btn active" title="Side by side view">
+              <i class="fas fa-columns"></i>
+            </button>
+            <button id="unified-btn" class="control-btn" title="Unified view">
+              <i class="fas fa-align-justify"></i>
+            </button>
+            <button id="word-wrap-btn" class="control-btn" title="Toggle word wrap">
+              <i class="fas fa-text-width"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="diff-stats">
+          <div class="stat-item additions">
+            <i class="fas fa-plus-circle"></i>
+            <span id="additions-count">0</span> additions
+          </div>
+          <div class="stat-item deletions">
+            <i class="fas fa-minus-circle"></i>
+            <span id="deletions-count">0</span> deletions
+          </div>
+          <div class="stat-item changes">
+            <i class="fas fa-exchange-alt"></i>
+            <span id="changes-count">0</span> changes
+          </div>
+        </div>
+
+        <div class="diff-content-container">
+          <div id="diff-content" class="side-by-side">
+            <div class="loading-indicator hidden">
+              <div class="spinner"></div>
+              <p>Generating diff...</p>
+            </div>
+            <div class="empty-state">
+              <i class="fas fa-code-compare"></i>
+              <p>Enter file paths and click "Compare Files" to see the differences</p>
+            </div>
+            <div class="diff-view hidden">
+              <div class="file1-content"></div>
+              <div class="file2-content"></div>
+            </div>
+            <div class="unified-view hidden">
+              <pre id="unified-diff"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>ConfDiff &copy; 2025 | A beautiful file diff viewer | Ankit Das</p>
+    </footer>
+  </div>
+
+  <div id="error-toast" class="toast hidden">
+    <div class="toast-content">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="error-message"></span>
+    </div>
+    <button class="toast-close">&times;</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
