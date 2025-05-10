@@ -6,6 +6,14 @@ const Diff = require('diff');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// DEVELOPER CONFIGURATION: Set your base path here
+// This is the directory where all the files to be compared are located
+// Users will provide paths relative to this directory
+const BASE_PATH = process.env.BASE_PATH || 'd:/Work/confdiff';  // Change this to your desired path
+
+// Parse JSON request bodies
+app.use(express.json());
+
 // Serve static files from the public directory
 app.use(express.static('public'));
 
@@ -23,7 +31,12 @@ app.get('/api/file', (req, res) => {
     return res.status(403).json({ error: 'Invalid file path' });
   }
 
-  fs.readFile(filePath, 'utf8', (err, data) => {
+  // Resolve the path relative to the base path
+  const fullPath = path.isAbsolute(normalizedPath) 
+    ? normalizedPath 
+    : path.join(BASE_PATH, normalizedPath);
+
+  fs.readFile(fullPath, 'utf8', (err, data) => {
     if (err) {
       return res.status(404).json({ error: `Error reading file: ${err.message}` });
     }
@@ -47,9 +60,18 @@ app.get('/api/diff', (req, res) => {
     return res.status(403).json({ error: 'Invalid file path' });
   }
 
+  // Resolve the paths relative to the base path
+  const fullPath1 = path.isAbsolute(normalizedPath1) 
+    ? normalizedPath1 
+    : path.join(BASE_PATH, normalizedPath1);
+  
+  const fullPath2 = path.isAbsolute(normalizedPath2) 
+    ? normalizedPath2 
+    : path.join(BASE_PATH, normalizedPath2);
+
   try {
-    const file1Content = fs.readFileSync(file1Path, 'utf8');
-    const file2Content = fs.readFileSync(file2Path, 'utf8');
+    const file1Content = fs.readFileSync(fullPath1, 'utf8');
+    const file2Content = fs.readFileSync(fullPath2, 'utf8');
     
     // Generate diff
     const diffResult = Diff.createTwoFilesPatch(
@@ -63,6 +85,15 @@ app.get('/api/diff', (req, res) => {
   } catch (err) {
     res.status(500).json({ error: `Error generating diff: ${err.message}` });
   }
+});
+
+// API endpoint to get information about the application
+app.get('/api/info', (req, res) => {
+  res.json({ 
+    name: 'ConfDiff',
+    description: 'A beautiful file diff viewer',
+    version: '1.0.0'
+  });
 });
 
 // Serve the main HTML file for any other route

@@ -2,7 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
   const file1PathInput = document.getElementById('file1-path');
   const file2PathInput = document.getElementById('file2-path');
-  const compareBtn = document.getElementById('compare-btn');
+  const compareServerBtn = document.getElementById('compare-server-btn');
+  const compareLocalBtn = document.getElementById('compare-local-btn');
+  const file1Upload = document.getElementById('file1-upload');
+  const file2Upload = document.getElementById('file2-upload');
+  const file1UploadName = document.getElementById('file1-upload-name');
+  const file2UploadName = document.getElementById('file2-upload-name');
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
   const file1NameEl = document.getElementById('file1-name');
   const file2NameEl = document.getElementById('file2-name');
   const diffContent = document.getElementById('diff-content');
@@ -23,17 +30,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorToast = document.getElementById('error-toast');
   const errorMessage = document.getElementById('error-message');
   const toastClose = document.querySelector('.toast-close');
-
+  
   // Check URL parameters on load
   checkUrlParams();
 
   // Event Listeners
-  compareBtn.addEventListener('click', compareFiles);
+  compareServerBtn.addEventListener('click', compareServerFiles);
+  compareLocalBtn.addEventListener('click', compareLocalFiles);
+  file1Upload.addEventListener('change', updateFileName.bind(null, file1Upload, file1UploadName));
+  file2Upload.addEventListener('change', updateFileName.bind(null, file2Upload, file2UploadName));
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
   sideBySideBtn.addEventListener('click', () => setViewMode('side-by-side'));
   unifiedBtn.addEventListener('click', () => setViewMode('unified'));
   wordWrapBtn.addEventListener('click', toggleWordWrap);
   themeToggle.addEventListener('change', toggleTheme);
   toastClose.addEventListener('click', () => errorToast.classList.add('hidden'));
+  document.querySelector('#success-toast .toast-close').addEventListener('click', () => {
+    document.getElementById('success-toast').classList.add('hidden');
+  });
 
   // Check for saved theme preference
   if (localStorage.getItem('theme') === 'dark' || 
@@ -43,19 +59,52 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Functions
+
   function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const file1 = urlParams.get('file1');
     const file2 = urlParams.get('file2');
+    const mode = urlParams.get('mode') || 'server';
     
     if (file1 && file2) {
-      file1PathInput.value = file1;
-      file2PathInput.value = file2;
-      compareFiles();
+      if (mode === 'server') {
+        switchTab('server-files');
+        file1PathInput.value = file1;
+        file2PathInput.value = file2;
+        compareServerFiles();
+      }
     }
   }
 
-  function compareFiles() {
+  function switchTab(tabId) {
+    // Update tab buttons
+    tabBtns.forEach(btn => {
+      if (btn.dataset.tab === tabId) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    
+    // Update tab content
+    tabContents.forEach(content => {
+      if (content.id === `${tabId}-tab`) {
+        content.classList.remove('hidden');
+      } else {
+        content.classList.add('hidden');
+      }
+    });
+  }
+  
+  function updateFileName(fileInput, fileNameElement) {
+    if (fileInput.files.length > 0) {
+      fileNameElement.textContent = fileInput.files[0].name;
+    } else {
+      fileNameElement.textContent = 'Choose a file';
+    }
+  }
+  
+  function compareServerFiles() {
     const file1Path = file1PathInput.value.trim();
     const file2Path = file2PathInput.value.trim();
     
@@ -68,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = new URL(window.location);
     url.searchParams.set('file1', file1Path);
     url.searchParams.set('file2', file2Path);
+    url.searchParams.set('mode', 'server');
     window.history.pushState({}, '', url);
 
     // Update file names
@@ -106,6 +156,69 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyState.classList.remove('hidden');
         showError(error.message);
       });
+  }
+  
+  function compareLocalFiles() {
+    if (!file1Upload.files.length || !file2Upload.files.length) {
+      showError('Please select both files');
+      return;
+    }
+    
+    const file1 = file1Upload.files[0];
+    const file2 = file2Upload.files[0];
+    
+    // Update file names
+    file1NameEl.textContent = file1.name;
+    file2NameEl.textContent = file2.name;
+    
+    // Show loading indicator
+    loadingIndicator.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    diffView.classList.add('hidden');
+    unifiedView.classList.add('hidden');
+    
+    // Read files
+    Promise.all([
+      readFileAsText(file1),
+      readFileAsText(file2)
+    ])
+      .then(([file1Content, file2Content]) => {
+        // Generate diff using the Diff library loaded from CDN
+        if (typeof Diff === 'undefined') {
+          throw new Error('Diff library not loaded. Please check your internet connection.');
+        }
+        
+        const diffResult = Diff.createTwoFilesPatch(
+          file1.name,
+          file2.name,
+          file1Content,
+          file2Content
+        );
+        
+        renderDiff(diffResult);
+        loadingIndicator.classList.add('hidden');
+        
+        // Set active view mode
+        if (diffContent.classList.contains('side-by-side')) {
+          diffView.classList.remove('hidden');
+        } else {
+          unifiedView.classList.remove('hidden');
+        }
+      })
+      .catch(error => {
+        loadingIndicator.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        showError(`Error comparing files: ${error.message}`);
+      });
+  }
+  
+  function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = event => resolve(event.target.result);
+      reader.onerror = error => reject(error);
+      reader.readAsText(file);
+    });
   }
 
   function renderDiff(diffText) {
@@ -240,5 +353,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       errorToast.classList.add('hidden');
     }, 5000);
+  }
+  
+  function showSuccess(message) {
+    const successMessage = document.getElementById('success-message');
+    const successToast = document.getElementById('success-toast');
+    
+    successMessage.textContent = message;
+    successToast.classList.remove('hidden');
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      successToast.classList.add('hidden');
+    }, 3000);
   }
 });

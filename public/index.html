@@ -26,25 +26,66 @@
     </header>
 
     <main>
-      <div class="file-inputs">
-        <div class="file-input-group">
-          <label for="file1-path">File 1 Path:</label>
-          <div class="input-with-icon">
-            <i class="fas fa-file-code"></i>
-            <input type="text" id="file1-path" placeholder="Enter path to first file">
+      <div class="app-info">
+        <h2>File Diff Viewer</h2>
+        <p>Compare files from server or upload your own files</p>
+      </div>
+      
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="server-files">Server Files</button>
+        <button class="tab-btn" data-tab="local-files">Local Files</button>
+      </div>
+      
+      <div class="tab-content" id="server-files-tab">
+        <div class="file-inputs">
+          <div class="file-input-group">
+            <label for="file1-path">File 1 Path:</label>
+            <div class="input-with-icon">
+              <i class="fas fa-file-code"></i>
+              <input type="text" id="file1-path" placeholder="Enter path to first file">
+            </div>
           </div>
-        </div>
-        <div class="file-input-group">
-          <label for="file2-path">File 2 Path:</label>
-          <div class="input-with-icon">
-            <i class="fas fa-file-code"></i>
-            <input type="text" id="file2-path" placeholder="Enter path to second file">
+          <div class="file-input-group">
+            <label for="file2-path">File 2 Path:</label>
+            <div class="input-with-icon">
+              <i class="fas fa-file-code"></i>
+              <input type="text" id="file2-path" placeholder="Enter path to second file">
+            </div>
           </div>
+          <button id="compare-server-btn" class="primary-btn">
+            <i class="fas fa-code-compare"></i>
+            Compare Server Files
+          </button>
         </div>
-        <button id="compare-btn" class="primary-btn">
-          <i class="fas fa-code-compare"></i>
-          Compare Files
-        </button>
+      </div>
+      
+      <div class="tab-content hidden" id="local-files-tab">
+        <div class="file-inputs">
+          <div class="file-input-group">
+            <label for="file1-upload">File 1:</label>
+            <div class="file-upload">
+              <input type="file" id="file1-upload" class="file-upload-input">
+              <label for="file1-upload" class="file-upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span id="file1-upload-name">Choose a file</span>
+              </label>
+            </div>
+          </div>
+          <div class="file-input-group">
+            <label for="file2-upload">File 2:</label>
+            <div class="file-upload">
+              <input type="file" id="file2-upload" class="file-upload-input">
+              <label for="file2-upload" class="file-upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span id="file2-upload-name">Choose a file</span>
+              </label>
+            </div>
+          </div>
+          <button id="compare-local-btn" class="primary-btn">
+            <i class="fas fa-code-compare"></i>
+            Compare Local Files
+          </button>
+        </div>
       </div>
 
       <div class="diff-container">
@@ -108,7 +149,7 @@
     </footer>
   </div>
 
-  <div id="error-toast" class="toast hidden">
+  <div id="error-toast" class="toast error-toast hidden">
     <div class="toast-content">
       <i class="fas fa-exclamation-circle"></i>
       <span id="error-message"></span>
@@ -116,6 +157,15 @@
     <button class="toast-close">&times;</button>
   </div>
 
+  <div id="success-toast" class="toast success-toast hidden">
+    <div class="toast-content">
+      <i class="fas fa-check-circle"></i>
+      <span id="success-message"></span>
+    </div>
+    <button class="toast-close">&times;</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

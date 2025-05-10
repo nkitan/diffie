@@ -1,6 +1,6 @@
 # ConfDiff - Beautiful File Diff Viewer
 
-A beautiful web-based file diff viewer that displays the differences between two files. The files reside on the server, and the file paths are provided as URL query parameters.
+A beautiful web-based file diff viewer that displays the differences between two files. The files reside on the server, and the file paths are provided as URL query parameters. The application uses a developer-configured base path, allowing users to provide paths relative to this base directory.
 
 ## Features
 
@@ -11,6 +11,8 @@ A beautiful web-based file diff viewer that displays the differences between two
 - Responsive design for all screen sizes
 - Diff statistics (additions, deletions, changes)
 - URL parameter support for direct linking
+- Developer-configured base path for relative file paths
+- Local file comparison (client-side only, files never sent to server)
 
 ## Installation
 
@@ -27,19 +29,40 @@ A beautiful web-based file diff viewer that displays the differences between two
 
 ## Usage
 
+### Developer Configuration
+
+As a developer, you can configure the base path in the server.js file:
+
+```javascript
+// DEVELOPER CONFIGURATION: Set your base path here
+const BASE_PATH = process.env.BASE_PATH || 'd:/Work/confdiff';  // Change this to your desired path
+```
+
 ### Via Web Interface
 
-1. Enter the paths to the two files you want to compare
-2. Click "Compare Files"
-3. View the differences in either side-by-side or unified mode
+#### Server Files
+1. Select the "Server Files" tab
+2. Enter the paths to the two files you want to compare (relative to the configured base path)
+3. Click "Compare Server Files"
+4. View the differences in either side-by-side or unified mode
+
+#### Local Files (Client-side only)
+1. Select the "Local Files" tab
+2. Upload two files from your local computer
+3. Click "Compare Local Files"
+4. View the differences in either side-by-side or unified mode
+   
+Note: When comparing local files, the files are processed entirely in your browser and are never sent to the server.
 
 ### Via URL Parameters
 
 You can directly link to a comparison by using URL parameters:
 
 ```
-http://localhost:3000/?file1=/path/to/first/file.txt&file2=/path/to/second/file.txt
+http://localhost:3000/?file1=relative/path/to/first/file.txt&file2=relative/path/to/second/file.txt
 ```
+
+The paths are relative to the configured base path on the server.
 
 ## Sample Files
 
@@ -53,6 +76,22 @@ You can compare these by entering their paths in the web interface or using the 
 ```
 http://localhost:3000/?file1=sample1.txt&file2=sample2.txt
 ```
+
+### Environment Variables
+
+You can also set the base path by using the `BASE_PATH` environment variable before starting the server:
+
+```
+# On Windows
+set BASE_PATH=C:\path\to\your\files
+npm start
+
+# On Linux/Mac
+export BASE_PATH=/path/to/your/files
+npm start
+```
+
+This allows you to change the base path without modifying the code.
 
 ## Technologies Used
 
