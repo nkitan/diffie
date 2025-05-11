@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // State variables
+  let originalFile1Content = '';
+  let originalFile2Content = '';
+  let showingCompleteFiles = false;
+  let fileUrlConfig = {
+    enabled: false,
+    prefix: '',
+    useAbsolutePaths: false
+  };
+  let originalFile1Path = '';
+  let originalFile2Path = '';
+  
   // DOM Elements
   const file1PathInput = document.getElementById('file1-path');
   const file2PathInput = document.getElementById('file2-path');
@@ -16,8 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const sideBySideBtn = document.getElementById('side-by-side-btn');
   const unifiedBtn = document.getElementById('unified-btn');
   const wordWrapBtn = document.getElementById('word-wrap-btn');
+  const lineNumbersBtn = document.getElementById('line-numbers-btn');
+  const showCompleteBtn = document.getElementById('show-complete-btn');
+  const shareBtn = document.getElementById('share-btn');
   const loadingIndicator = document.querySelector('.loading-indicator');
   const emptyState = document.querySelector('.empty-state');
+  const noChangesState = document.querySelector('.no-changes-state');
   const diffView = document.querySelector('.diff-view');
   const unifiedView = document.querySelector('.unified-view');
   const unifiedDiff = document.getElementById('unified-diff');
@@ -31,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorMessage = document.getElementById('error-message');
   const toastClose = document.querySelector('.toast-close');
   const appInfo = document.querySelector('.app-info');
+  const file1FilenameEl = document.querySelector('.file1-filename');
+  const file2FilenameEl = document.querySelector('.file2-filename');
+  const filenameBar = document.querySelector('.filename-bar');
   
   // Fetch app configuration
   fetchAppConfig();
@@ -49,17 +68,47 @@ document.addEventListener('DOMContentLoaded', () => {
   sideBySideBtn.addEventListener('click', () => setViewMode('side-by-side'));
   unifiedBtn.addEventListener('click', () => setViewMode('unified'));
   wordWrapBtn.addEventListener('click', toggleWordWrap);
+  lineNumbersBtn.addEventListener('click', toggleLineNumbers);
+  showCompleteBtn.addEventListener('click', toggleCompleteFiles);
+  shareBtn.addEventListener('click', shareDiff);
   themeToggle.addEventListener('change', toggleTheme);
   toastClose.addEventListener('click', () => errorToast.classList.add('hidden'));
   document.querySelector('#success-toast .toast-close').addEventListener('click', () => {
     document.getElementById('success-toast').classList.add('hidden');
   });
+  
+  // Add event listeners for the filename bar toggle buttons
+  if (document.querySelector('.toggle-filename-btn')) {
+    document.querySelector('.toggle-filename-btn').addEventListener('click', toggleFilenameBar);
+  }
+  
+  if (document.querySelector('.persistent-toggle-btn')) {
+    document.querySelector('.persistent-toggle-btn').addEventListener('click', toggleFilenameBar);
+  }
 
   // Check for saved theme preference
   if (localStorage.getItem('theme') === 'dark' || 
       (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'))) {
     document.body.classList.add('dark-theme');
     themeToggle.checked = true;
+  }
+  
+  // Check for saved filename bar preference
+  if (localStorage.getItem('filenameBarCollapsed') === 'true' && filenameBar) {
+    filenameBar.classList.add('collapsed');
+    const toggleBtn = document.querySelector('.toggle-filename-btn');
+    if (toggleBtn) {
+      const icon = toggleBtn.querySelector('i');
+      icon.className = 'fas fa-chevron-down';
+      toggleBtn.title = 'Show filename bar';
+    }
+    
+    // Make sure the persistent toggle button is visible
+    const persistentBtn = document.querySelector('.persistent-toggle-btn');
+    if (persistentBtn) {
+      persistentBtn.style.opacity = '1';
+      persistentBtn.style.transform = 'translateY(0)';
+    }
   }
 
   // Functions
@@ -168,6 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showError('Please enter both file paths');
       return;
     }
+    
+    // Store original file paths for URL generation
+    originalFile1Path = file1Path;
+    originalFile2Path = file2Path;
 
     // Update URL with query parameters
     const url = new URL(window.location);
@@ -176,18 +229,58 @@ document.addEventListener('DOMContentLoaded', () => {
     url.searchParams.set('mode', 'server');
     window.history.pushState({}, '', url);
 
-    // Update file names
+    // Update file names in the header
     file1NameEl.textContent = getFileName(file1Path);
     file2NameEl.textContent = getFileName(file2Path);
+    
+    // Update filenames in the filename bar
+    file1FilenameEl.textContent = getFileName(file1Path);
+    file2FilenameEl.textContent = getFileName(file2Path);
 
     // Show loading indicator
     loadingIndicator.classList.remove('hidden');
     emptyState.classList.add('hidden');
     diffView.classList.add('hidden');
     unifiedView.classList.add('hidden');
+    noChangesState.classList.add('hidden');
 
-    // Fetch diff from API
-    fetch(`/api/diff?file1=${encodeURIComponent(file1Path)}&file2=${encodeURIComponent(file2Path)}`)
+    // Reset complete files toggle
+    showingCompleteFiles = false;
+    showCompleteBtn.classList.remove('active');
+    showCompleteBtn.title = "Show complete files";
+
+    // First check if the files are identical by fetching their contents
+    Promise.all([
+      fetch(`/api/file?path=${encodeURIComponent(file1Path)}`).then(res => res.ok ? res.json() : null),
+      fetch(`/api/file?path=${encodeURIComponent(file2Path)}`).then(res => res.ok ? res.json() : null)
+    ])
+      .then(([file1Data, file2Data]) => {
+        // If we successfully got both file contents
+        if (file1Data && file2Data && file1Data.content && file2Data.content) {
+          // Store original file contents
+          originalFile1Content = file1Data.content;
+          originalFile2Content = file2Data.content;
+          
+          // Check if files are identical
+          if (file1Data.content === file2Data.content) {
+            // Files are identical, show the no-changes message
+            loadingIndicator.classList.add('hidden');
+            noChangesState.classList.remove('hidden');
+            diffView.classList.add('hidden');
+            unifiedView.classList.add('hidden');
+            
+            // Update stats
+            additionsCount.textContent = 0;
+            deletionsCount.textContent = 0;
+            changesCount.textContent = 0;
+            
+            return Promise.reject({ skipErrorDisplay: true });
+          }
+        }
+        
+        // Files are different or we couldn't compare them directly, proceed with diff
+        return fetch(`/api/diff?file1=${encodeURIComponent(file1Path)}&file2=${encodeURIComponent(file2Path)}`);
+      })
       .then(response => {
         if (!response.ok) {
           return response.json().then(data => {
@@ -197,20 +290,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
+        // If we didn't already store the file contents, do it now
+        if (!originalFile1Content && !originalFile2Content && data.file1Content && data.file2Content) {
+          originalFile1Content = data.file1Content;
+          originalFile2Content = data.file2Content;
+        }
+        
         renderDiff(data.diff);
         loadingIndicator.classList.add('hidden');
-        
-        // Set active view mode
-        if (diffContent.classList.contains('side-by-side')) {
-          diffView.classList.remove('hidden');
-        } else {
-          unifiedView.classList.remove('hidden');
-        }
       })
       .catch(error => {
         loadingIndicator.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-        showError(error.message);
+        
+        // Only show error if it's not our special case for identical files
+        if (!error.skipErrorDisplay) {
+          emptyState.classList.remove('hidden');
+          noChangesState.classList.add('hidden');
+          diffView.classList.add('hidden');
+          unifiedView.classList.add('hidden');
+          showError(error.message);
+        }
       });
   }
   
@@ -223,15 +322,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const file1 = file1Upload.files[0];
     const file2 = file2Upload.files[0];
     
-    // Update file names
+    // Store original file paths for URL generation
+    originalFile1Path = file1.name;
+    originalFile2Path = file2.name;
+    
+    // Update file names in the header
     file1NameEl.textContent = file1.name;
     file2NameEl.textContent = file2.name;
+    
+    // Update filenames in the filename bar
+    file1FilenameEl.textContent = file1.name;
+    file2FilenameEl.textContent = file2.name;
     
     // Show loading indicator
     loadingIndicator.classList.remove('hidden');
     emptyState.classList.add('hidden');
     diffView.classList.add('hidden');
     unifiedView.classList.add('hidden');
+    noChangesState.classList.add('hidden');
+    
+    // Reset complete files toggle
+    showingCompleteFiles = false;
+    showCompleteBtn.classList.remove('active');
+    showCompleteBtn.title = "Show complete files";
     
     // Read files
     Promise.all([
@@ -239,6 +352,26 @@ document.addEventListener('DOMContentLoaded', () => {
       readFileAsText(file2)
     ])
       .then(([file1Content, file2Content]) => {
+        // Store original file contents
+        originalFile1Content = file1Content;
+        originalFile2Content = file2Content;
+        
+        // Explicitly check if files are identical before proceeding with diff
+        if (file1Content === file2Content) {
+          // Files are identical, show the no-changes message
+          loadingIndicator.classList.add('hidden');
+          noChangesState.classList.remove('hidden');
+          diffView.classList.add('hidden');
+          unifiedView.classList.add('hidden');
+          
+          // Update stats
+          additionsCount.textContent = 0;
+          deletionsCount.textContent = 0;
+          changesCount.textContent = 0;
+          
+          return;
+        }
+        
         // Generate diff using the Diff library loaded from CDN
         if (typeof Diff === 'undefined') {
           throw new Error('Diff library not loaded. Please check your internet connection.');
@@ -253,17 +386,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderDiff(diffResult);
         loadingIndicator.classList.add('hidden');
-        
-        // Set active view mode
-        if (diffContent.classList.contains('side-by-side')) {
-          diffView.classList.remove('hidden');
-        } else {
-          unifiedView.classList.remove('hidden');
-        }
       })
       .catch(error => {
         loadingIndicator.classList.add('hidden');
         emptyState.classList.remove('hidden');
+        noChangesState.classList.add('hidden');
+        diffView.classList.add('hidden');
+        unifiedView.classList.add('hidden');
         showError(`Error comparing files: ${error.message}`);
       });
   }
@@ -276,8 +405,61 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.readAsText(file);
     });
   }
+  
+  function fetchFileContents(file1Path, file2Path) {
+    // Fetch file1 content
+    fetch(`/api/file?path=${encodeURIComponent(file1Path)}`)
+      .then(response => {
+        if (!response.ok) {
+          console.warn('Could not fetch file1 content');
+          return null;
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.content) {
+          originalFile1Content = data.content;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching file1:', error);
+      });
+    
+    // Fetch file2 content
+    fetch(`/api/file?path=${encodeURIComponent(file2Path)}`)
+      .then(response => {
+        if (!response.ok) {
+          console.warn('Could not fetch file2 content');
+          return null;
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.content) {
+          originalFile2Content = data.content;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching file2:', error);
+      });
+  }
 
   function renderDiff(diffText) {
+    // If the files are identical and we're not showing complete files,
+    // don't process the diff and show the no-changes message
+    if (originalFile1Content === originalFile2Content && !showingCompleteFiles) {
+      // Update stats
+      additionsCount.textContent = 0;
+      deletionsCount.textContent = 0;
+      changesCount.textContent = 0;
+      
+      // Show the no-changes message
+      noChangesState.classList.remove('hidden');
+      diffView.classList.add('hidden');
+      unifiedView.classList.add('hidden');
+      return;
+    }
+    
     // Parse the unified diff format
     const lines = diffText.split('\n');
     
@@ -292,6 +474,37 @@ document.addEventListener('DOMContentLoaded', () => {
     let additions = 0;
     let deletions = 0;
     let changes = 0;
+    
+    // Check if files are identical
+    // When files are identical, the diff will only contain header lines and no actual changes
+    let hasChanges = false;
+    
+    // Quick check for empty diff or only header lines
+    // This is a simple heuristic to detect identical files from the diff output
+    let onlyHeaderLines = true;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.startsWith('---') && !line.startsWith('+++') && 
+          !line.startsWith('diff') && !line.startsWith('index') && 
+          line.trim() !== '') {
+        onlyHeaderLines = false;
+        break;
+      }
+    }
+    
+    // If we only have header lines, files are identical
+    if (onlyHeaderLines) {
+      // Update stats
+      additionsCount.textContent = 0;
+      deletionsCount.textContent = 0;
+      changesCount.textContent = 0;
+      
+      // Show the no-changes message
+      noChangesState.classList.remove('hidden');
+      diffView.classList.add('hidden');
+      unifiedView.classList.add('hidden');
+      return;
+    }
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -304,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Check for hunk header
       if (line.startsWith('@@')) {
         inHeader = false;
+        hasChanges = true; // If we have a hunk header, there are changes
         
         // Extract line numbers from hunk header
         const match = line.match(/@@ -(\d+),\d+ \+(\d+),\d+ @@/);
@@ -321,11 +535,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Deletion - only in file1
         file1LineNumber++;
         deletions++;
+        hasChanges = true;
         appendLine(file1Content, file1LineNumber, line.substring(1), 'deletion');
       } else if (line.startsWith('+')) {
         // Addition - only in file2
         file2LineNumber++;
         additions++;
+        hasChanges = true;
         appendLine(file2Content, file2LineNumber, line.substring(1), 'addition');
       } else if (line.startsWith(' ')) {
         // Context - in both files
@@ -340,6 +556,35 @@ document.addEventListener('DOMContentLoaded', () => {
     additionsCount.textContent = additions;
     deletionsCount.textContent = deletions;
     changesCount.textContent = Math.min(additions, deletions);
+    
+    // Show appropriate view based on whether files are identical or not
+    if (!hasChanges) {
+      // Files are identical, show the no-changes message
+      noChangesState.classList.remove('hidden');
+      diffView.classList.add('hidden');
+      unifiedView.classList.add('hidden');
+    } else {
+      // Files have differences, show the appropriate diff view
+      noChangesState.classList.add('hidden');
+      if (diffContent.classList.contains('side-by-side')) {
+        diffView.classList.remove('hidden');
+        unifiedView.classList.add('hidden');
+        
+        // Make sure the filename bar is properly initialized
+        if (filenameBar && localStorage.getItem('filenameBarCollapsed') === 'true') {
+          filenameBar.classList.add('collapsed');
+          const toggleBtn = document.querySelector('.toggle-filename-btn');
+          if (toggleBtn) {
+            const icon = toggleBtn.querySelector('i');
+            icon.className = 'fas fa-chevron-down';
+            toggleBtn.title = 'Show filename bar';
+          }
+        }
+      } else {
+        unifiedView.classList.remove('hidden');
+        diffView.classList.add('hidden');
+      }
+    }
   }
 
   function appendLine(container, lineNumber, content, type) {
@@ -392,9 +637,123 @@ document.addEventListener('DOMContentLoaded', () => {
     wordWrapBtn.classList.toggle('active');
   }
 
+  function toggleLineNumbers() {
+    diffContent.classList.toggle('hide-line-numbers');
+    lineNumbersBtn.classList.toggle('active');
+    
+    // If the button is not active, line numbers are hidden
+    if (!lineNumbersBtn.classList.contains('active')) {
+      lineNumbersBtn.title = "Show line numbers";
+    } else {
+      lineNumbersBtn.title = "Hide line numbers";
+    }
+  }
+
   function toggleTheme() {
     document.body.classList.toggle('dark-theme');
     localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+  }
+  
+  function toggleCompleteFiles() {
+    showingCompleteFiles = !showingCompleteFiles;
+    showCompleteBtn.classList.toggle('active');
+    
+    // Check if files are identical
+    const filesAreIdentical = originalFile1Content === originalFile2Content;
+    
+    if (showingCompleteFiles) {
+      showCompleteBtn.title = "Show only changes";
+      
+      // If we're in the middle of a comparison and have original content
+      if (originalFile1Content && originalFile2Content) {
+        // Store current view state
+        const isSideBySide = diffContent.classList.contains('side-by-side');
+        
+        // Clear current content
+        file1Content.innerHTML = '';
+        file2Content.innerHTML = '';
+        
+        // Display complete files
+        const file1Lines = originalFile1Content.split('\n');
+        const file2Lines = originalFile2Content.split('\n');
+        
+        for (let i = 0; i < file1Lines.length; i++) {
+          appendLine(file1Content, i + 1, file1Lines[i], 'context');
+        }
+        
+        for (let i = 0; i < file2Lines.length; i++) {
+          appendLine(file2Content, i + 1, file2Lines[i], 'context');
+        }
+        
+        // For identical files, update stats but show the content
+        if (filesAreIdentical) {
+          additionsCount.textContent = 0;
+          deletionsCount.textContent = 0;
+          changesCount.textContent = 0;
+        }
+        
+        // Show the appropriate view
+        noChangesState.classList.add('hidden');
+        if (isSideBySide) {
+          diffView.classList.remove('hidden');
+          unifiedView.classList.add('hidden');
+        } else {
+          unifiedView.classList.remove('hidden');
+          diffView.classList.add('hidden');
+        }
+      }
+    } else {
+      showCompleteBtn.title = "Show complete files";
+      
+      // Rerender the diff to show only changes
+      if (originalFile1Content && originalFile2Content) {
+        // For identical files, show the no-changes message
+        if (filesAreIdentical) {
+          // Make sure the stats are correct
+          additionsCount.textContent = 0;
+          deletionsCount.textContent = 0;
+          changesCount.textContent = 0;
+          
+          // Show the no-changes message
+          noChangesState.classList.remove('hidden');
+          diffView.classList.add('hidden');
+          unifiedView.classList.add('hidden');
+        } else {
+          // Use empty strings for file names to avoid them showing as changes
+          const diffResult = Diff.createTwoFilesPatch(
+            "", // Use empty string instead of file1NameEl.textContent
+            "", // Use empty string instead of file2NameEl.textContent
+            originalFile1Content,
+            originalFile2Content
+          );
+          
+          renderDiff(diffResult);
+        }
+      }
+    }
+  }
+  
+  function shareDiff() {
+    // Get current URL
+    const currentUrl = window.location.href;
+    
+    // Create a temporary input element
+    const tempInput = document.createElement('input');
+    tempInput.value = currentUrl;
+    document.body.appendChild(tempInput);
+    
+    // Select the input content
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Copy the content to clipboard
+    document.execCommand('copy');
+    
+    // Remove the temporary element
+    document.body.removeChild(tempInput);
+    
+    // Show success message
+    showSuccess('URL copied to clipboard! You can now share this diff.');
   }
 
   function getFileName(path) {
@@ -424,6 +783,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
   
+  function toggleFilenameBar() {
+    if (filenameBar) {
+      filenameBar.classList.toggle('collapsed');
+      
+      // Update the toggle button icon
+      const toggleBtn = document.querySelector('.toggle-filename-btn');
+      if (toggleBtn) {
+        const icon = toggleBtn.querySelector('i');
+        if (filenameBar.classList.contains('collapsed')) {
+          icon.className = 'fas fa-chevron-down';
+          toggleBtn.title = 'Show filename bar';
+        } else {
+          icon.className = 'fas fa-chevron-up';
+          toggleBtn.title = 'Hide filename bar';
+        }
+      }
+      
+      // Save preference in localStorage
+      localStorage.setItem('filenameBarCollapsed', filenameBar.classList.contains('collapsed'));
+    }
+  }
+  
   // Fetch application configuration from the server
   function fetchAppConfig() {
     fetch('/api/info')
@@ -434,6 +815,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
+        // Update page title and application name in UI
+        if (data.name) {
+          // Update the page title
+          document.title = data.name;
+          
+          // Update the application name in the navbar
+          const navbarTitle = document.querySelector('.logo h1');
+          if (navbarTitle) {
+            navbarTitle.textContent = data.name;
+          }
+          
+          // Update the footer
+          const footer = document.getElementById('app-footer');
+          if (footer) {
+            footer.textContent = `${data.name} © 2025 | ${data.description || 'A beautiful file diff viewer'} | Ankit Das`;
+          }
+        }
+        
         // Apply UI configuration
         if (data.ui) {
           // Handle app info visibility
@@ -458,6 +857,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const navbarTitle = document.querySelector('.logo h1');
             if (navbarTitle) {
               navbarTitle.classList.add('hidden');
+            }
+          }
+          
+          // Handle file URL configuration
+          if (data.ui.FILE_URLS) {
+            fileUrlConfig = {
+              enabled: data.ui.FILE_URLS.ENABLED === true,
+              prefix: data.ui.FILE_URLS.PREFIX || '',
+              useAbsolutePaths: data.ui.FILE_URLS.USE_ABSOLUTE_PATHS === true
+            };
+            
+            // Make filenames clickable if enabled
+            if (fileUrlConfig.enabled) {
+              setupClickableFilenames();
             }
           }
           
@@ -511,5 +924,43 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(error => {
         console.error('Error fetching app configuration:', error);
       });
+  }
+  
+  // Set up clickable filenames
+  function setupClickableFilenames() {
+    // Add click event listeners to filename elements
+    if (file1FilenameEl) {
+      file1FilenameEl.classList.add('clickable');
+      file1FilenameEl.title = 'Click to open file in new tab';
+      file1FilenameEl.addEventListener('click', () => openFileInNewTab(originalFile1Path));
+    }
+    
+    if (file2FilenameEl) {
+      file2FilenameEl.classList.add('clickable');
+      file2FilenameEl.title = 'Click to open file in new tab';
+      file2FilenameEl.addEventListener('click', () => openFileInNewTab(originalFile2Path));
+    }
+  }
+  
+  // Open file in a new tab
+  function openFileInNewTab(filePath) {
+    if (!filePath || !fileUrlConfig.enabled || !fileUrlConfig.prefix) {
+      return;
+    }
+    
+    let path = filePath;
+    
+    // If using absolute paths, use the full path
+    // Otherwise, use just the filename or relative path as provided
+    if (!fileUrlConfig.useAbsolutePaths) {
+      // Extract just the filename or relative path
+      path = filePath;
+    }
+    
+    // Create the full URL
+    const url = fileUrlConfig.prefix + path;
+    
+    // Open in a new tab
+    window.open(url, '_blank');
   }
 });

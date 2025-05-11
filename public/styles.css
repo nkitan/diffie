@@ -512,13 +512,165 @@ main {
 
 .side-by-side .diff-view {
   display: flex;
+  flex-direction: column;
   height: 100%;
+}
+
+/* Filename bar styles */
+.filename-wrapper {
+  position: relative;
+  z-index: 3;
+}
+
+.filename-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.filename-bar.collapsed {
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-bottom: none;
+  opacity: 0;
+}
+
+.persistent-toggle-btn {
+  position: absolute;
+  top: 0;
+  right: 1rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 0.375rem 0.375rem;
+  color: var(--secondary-text);
+  width: 32px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.filename-bar.collapsed + .persistent-toggle-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.filename-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex: 1;
+  text-align: center;
+}
+
+.filename {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.filename:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.1);
+}
+
+.compare-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+  transition: all 0.2s ease;
+}
+
+.compare-icon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(99, 102, 241, 0.3);
+}
+
+.toggle-filename-btn {
+  background: none;
+  border: none;
+  color: var(--secondary-text);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.toggle-filename-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-color);
+  transform: translateY(-1px);
+}
+
+.toggle-filename-btn:active {
+  transform: translateY(1px);
+}
+
+.toggle-filename-btn i {
+  font-size: 0.8rem;
+  transition: transform 0.3s;
+}
+
+.persistent-toggle-btn:hover {
+  background-color: var(--bg-color);
+  color: var(--primary-color);
+  transform: translateY(0) scale(1.05);
+}
+
+.persistent-toggle-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.diff-view-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 .file1-content, .file2-content {
   flex: 1;
   padding: 1rem 0;
   overflow-x: auto;
+  height: 100%;
 }
 
 .file1-content {
@@ -591,6 +743,18 @@ main {
   word-break: break-word;
 }
 
+/* Line numbers toggle */
+.hide-line-numbers .line-number {
+  display: none;
+  width: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.hide-line-numbers .line-content {
+  width: 100%;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -611,6 +775,28 @@ main {
   margin-bottom: 1.5rem;
   color: var(--primary-color);
   opacity: 0.5;
+}
+
+.no-changes-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 3rem;
+  color: var(--secondary-text);
+  text-align: center;
+  background-color: var(--bg-color);
+  border-radius: 0.5rem;
+  border: 2px dashed var(--border-color);
+  margin: 1rem;
+}
+
+.no-changes-state i {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  color: #4ade80; /* Green color for success/identical */
+  opacity: 0.7;
 }
 
 .empty-state p {

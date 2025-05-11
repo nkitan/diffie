@@ -91,8 +91,8 @@ app.get('/api/diff', (req, res) => {
 // API endpoint to get information about the application
 app.get('/api/info', (req, res) => {
   res.json({ 
-    name: 'ConfDiff',
-    description: 'A beautiful file diff viewer',
+    name: config.APP_NAME || 'ConfDiff',
+    description: config.APP_DESCRIPTION || 'A beautiful file diff viewer',
     version: '1.0.0',
     basePath: BASE_PATH,
     ui: config.UI || { SHOW_APP_INFO: true }
@@ -105,6 +105,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`ConfDiff server running on http://localhost:${PORT}`);
+  console.log(`${config.APP_NAME || 'ConfDiff'} server running on http://localhost:${PORT}`);
   console.log(`Base path for file comparisons: ${BASE_PATH}`);
 });

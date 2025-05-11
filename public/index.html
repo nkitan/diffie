@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beautiful File Diff Viewer</title>
+  <title>ConfDiff</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -27,7 +29,7 @@
 
     <main>
       <div class="app-info">
-        <h2>File Diff Viewer</h2>
+        <h2>Simple File Diff Viewer</h2>
         <p>Compare files from server or upload your own files</p>
       </div>
       
@@ -104,6 +106,15 @@
             <button id="word-wrap-btn" class="control-btn" title="Toggle word wrap">
               <i class="fas fa-text-width"></i>
             </button>
+            <button id="line-numbers-btn" class="control-btn active" title="Hide line numbers">
+              <i class="fas fa-list-ol"></i>
+            </button>
+            <button id="show-complete-btn" class="control-btn" title="Show complete files">
+              <i class="fas fa-file-alt"></i>
+            </button>
+            <button id="share-btn" class="control-btn" title="Share this diff">
+              <i class="fas fa-share-alt"></i>
+            </button>
           </div>
         </div>
         
@@ -132,9 +143,32 @@
               <i class="fas fa-code-compare"></i>
               <p>Select files above and click "Compare Files" to see the differences</p>
             </div>
+            <div class="no-changes-state hidden">
+              <i class="fas fa-equals"></i>
+              <p>Files are identical. No differences found.</p>
+            </div>
             <div class="diff-view hidden">
-              <div class="file1-content"></div>
-              <div class="file2-content"></div>
+              <div class="filename-wrapper">
+                <div class="filename-bar">
+                  <div class="filename-container">
+                    <span class="filename file1-filename"></span>
+                    <div class="compare-icon">
+                      <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <span class="filename file2-filename"></span>
+                  </div>
+                  <button class="toggle-filename-btn" title="Hide filename bar">
+                    <i class="fas fa-chevron-up"></i>
+                  </button>
+                </div>
+                <button class="persistent-toggle-btn" title="Show filename bar">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+              </div>
+              <div class="diff-view-content">
+                <div class="file1-content"></div>
+                <div class="file2-content"></div>
+              </div>
             </div>
             <div class="unified-view hidden">
               <pre id="unified-diff"></pre>
@@ -145,7 +179,7 @@
     </main>
 
     <footer>
-      <p>ConfDiff &copy; 2025 | A beautiful file diff viewer | Ankit Das</p>
+      <p id="app-footer">ConfDiff &copy; 2025 | A beautiful file diff viewer | Ankit Das</p>
     </footer>
   </div>
 
