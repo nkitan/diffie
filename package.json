@@ -1,5 +1,5 @@
 {
-  "name": "confdiff",
+  "name": "Diffie",
   "version": "1.0.0",
   "description": "A beautiful, simple file diff viewer",
   "main": "server.js",

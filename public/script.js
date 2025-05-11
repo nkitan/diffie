@@ -853,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           // Handle navbar title visibility
           if (data.ui.SHOW_NAVBAR_TITLE === false) {
-            // Hide the "ConfDiff" title in the navbar
+            // Hide the "Diffie" title in the navbar
             const navbarTitle = document.querySelector('.logo h1');
             if (navbarTitle) {
               navbarTitle.classList.add('hidden');

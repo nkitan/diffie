@@ -1,4 +1,4 @@
-# ConfDiff - Beautiful File Diff Viewer
+# Diffie - Beautiful File Diff Viewer
 
 A beautiful web-based file diff viewer that displays the differences between two files. The files reside on the server, and the file paths are provided as URL query parameters. The application uses a developer-configured base path, allowing users to provide paths relative to this base directory.
 
@@ -37,7 +37,7 @@ As a developer, you can configure the application settings in the `config.js` fi
 // config.js
 module.exports = {
   // Base path where all the files to be compared are located
-  BASE_PATH: 'd:/Work/confdiff',
+  BASE_PATH: '/var/local/diffie',
   
   // Port for the server to listen on
   PORT: 3000

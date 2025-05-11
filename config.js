@@ -1,16 +1,16 @@
 /**
- * Configuration file for ConfDiff application
+ * Configuration file for Diffie application
  */
 module.exports = {
   // Application name - used in the browser title and UI
-  APP_NAME: 'ConfDiff',
+  APP_NAME: 'Diffie',
   
   // Application description - used in the UI and footer
   APP_DESCRIPTION: 'A beautiful file diff viewer',
   
   // Base path where all the files to be compared are located
   // Users will provide paths relative to this directory
-  BASE_PATH: '/mnt/d/Work/confdiff/test',
+  BASE_PATH: '/mnt/d/Work/diffie/test',
   
   // Port for the server to listen on
   // Can be overridden with PORT environment variable
