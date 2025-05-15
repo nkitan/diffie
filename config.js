@@ -19,7 +19,7 @@ module.exports = {
   // UI Configuration options
   UI: {
     // Whether to show the app info section at the top of the page
-    SHOW_APP_INFO: false,
+    SHOW_APP_INFO: true,
     
     // Whether word wrap should be enabled by default
     WORD_WRAP_DEFAULT: true,
