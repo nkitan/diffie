@@ -26,28 +26,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const multiLineNumbersBtn = document.getElementById('multi-line-numbers-btn');
   const multiCollapseAllBtn = document.getElementById('multi-collapse-all-btn');
   const multiExpandAllBtn = document.getElementById('multi-expand-all-btn');
+  const focusModeToggle = document.getElementById('focus-mode-toggle');
+  const multiFocusModeBtn = document.getElementById('multi-focus-mode-btn');
+  const focusModeGenerateReportBtn = document.getElementById('focus-mode-generate-report');
+  const focusModeShareBtn = document.getElementById('focus-mode-share-btn');
+  const focusModeThemeToggle = document.getElementById('focus-mode-theme-toggle-checkbox');
   
   // Add CSS for file path links and identical files container
   const style = document.createElement('style');
   style.textContent = `
     .file-path-link {
       cursor: pointer;
-      color: #3b82f6;
+      color: var(--primary-color);
       text-decoration: underline;
     }
     .file-path-link:hover {
-      color: #2563eb;
+      color: var(--primary-hover);
     }
     .identical-files-container {
       width: 100%;
-      background-color: #f0fdf4;
-      border: 1px solid #d1fae5;
-      border-radius: 4px;
+      background-color: rgba(var(--addition-color-rgb), 0.2);
+      border: 1px solid var(--addition-color);
+      border-radius: var(--radius-md);
       margin: 10px 0;
     }
     .identical-files-container .no-changes-state {
       padding: 20px;
       text-align: center;
+      color: var(--addition-text);
+    }
+    
+    /* Dark theme adjustments */
+    .dark-theme .identical-files-container,
+    [class*="-dark-theme"] .identical-files-container {
+      background-color: rgba(var(--addition-color-rgb), 0.1);
+      border-color: rgba(var(--addition-color-rgb), 0.3);
     }
   `;
   document.head.appendChild(style);
@@ -59,6 +72,34 @@ document.addEventListener('DOMContentLoaded', () => {
   let wordWrapEnabled = false;
   let lineNumbersEnabled = true;
   let currentFilter = 'all';
+  
+  // Check for word wrap default setting from app configuration
+  fetch('/api/info')
+    .then(response => response.json())
+    .then(data => {
+      if (data.ui && data.ui.WORD_WRAP_DEFAULT === true) {
+        // Enable word wrap by default
+        wordWrapEnabled = true;
+        multiWordWrapBtn.classList.add('active');
+        
+        // Apply word wrap to all diff content elements
+        document.querySelectorAll('.multi-diff-results .line-content').forEach(el => {
+          el.style.whiteSpace = 'pre-wrap';
+        });
+        
+        document.querySelectorAll('.multi-diff-results .unified-diff').forEach(el => {
+          el.style.whiteSpace = 'pre-wrap';
+        });
+        
+        // Apply word wrap to the multi-diff containers
+        document.querySelectorAll('.multi-diff-container, .diff-result-content').forEach(container => {
+          container.classList.add('word-wrap');
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching app configuration:', error);
+    });
   
   // Function to open file in a new tab
   function openFileInNewTab(filePath) {
@@ -83,6 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.open(url, '_blank');
   }
   
+  // State variables for focus mode
+  let isFocusMode = false;
+  
   // Event Listeners
   addFilePairBtn.addEventListener('click', addFilePair);
   compareMultiBtn.addEventListener('click', compareAllFiles);
@@ -96,6 +140,41 @@ document.addEventListener('DOMContentLoaded', () => {
   multiLineNumbersBtn.addEventListener('click', toggleMultiLineNumbers);
   multiCollapseAllBtn.addEventListener('click', collapseAllDiffs);
   multiExpandAllBtn.addEventListener('click', expandAllDiffs);
+  focusModeToggle.addEventListener('click', toggleFocusMode);
+  multiFocusModeBtn.addEventListener('click', toggleFocusMode);
+  
+  // Add event listener for the focus mode generate report button
+  if (focusModeGenerateReportBtn) {
+    focusModeGenerateReportBtn.addEventListener('click', generateReport);
+  }
+  
+  // Add event listener for the focus mode share button
+  if (focusModeShareBtn) {
+    focusModeShareBtn.addEventListener('click', shareDiff);
+  }
+  
+  // Add event listener for the focus mode theme toggle
+  if (focusModeThemeToggle) {
+    // Initialize the toggle state based on current theme
+    const isDarkMode = localStorage.getItem('theme') === 'dark' || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+    focusModeThemeToggle.checked = isDarkMode;
+    
+    // Add event listener to toggle theme
+    focusModeThemeToggle.addEventListener('change', () => {
+      // Call the toggleTheme function from script.js
+      if (window.toggleTheme) {
+        window.toggleTheme();
+      } else {
+        // Fallback if toggleTheme is not available
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', focusModeThemeToggle.checked ? 'dark' : 'light');
+      }
+    });
+  }
+  
+  // Check URL parameters for focus mode
+  checkFocusModeParam();
   
   // Initialize file pairs
   initializeFilePairs();
@@ -869,10 +948,104 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.whiteSpace = wordWrapEnabled ? 'pre-wrap' : 'pre';
     });
     
+    // Apply word wrap to the multi-diff container (equivalent to diffContent.classList.toggle('word-wrap'))
+    const multiDiffContainers = document.querySelectorAll('.multi-diff-container, .diff-result-content');
+    multiDiffContainers.forEach(container => {
+      if (wordWrapEnabled) {
+        container.classList.add('word-wrap');
+      } else {
+        container.classList.remove('word-wrap');
+      }
+    });
+    
     // Apply line numbers
     document.querySelectorAll('.multi-diff-results .line-number').forEach(el => {
       el.style.display = lineNumbersEnabled ? '' : 'none';
     });
+  }
+  
+  // Function to check URL parameters for focus mode
+  function checkFocusModeParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const focusParam = urlParams.get('focus');
+    
+    if (focusParam === 'true') {
+      enableFocusMode();
+    }
+  }
+  
+  // Function to toggle focus mode
+  function toggleFocusMode() {
+    if (isFocusMode) {
+      disableFocusMode();
+    } else {
+      enableFocusMode();
+    }
+  }
+  
+  // Function to share the current diff
+  function shareDiff() {
+    // Get current URL
+    const currentUrl = window.location.href;
+    
+    // Create a temporary input element
+    const tempInput = document.createElement('input');
+    tempInput.value = currentUrl;
+    document.body.appendChild(tempInput);
+    
+    // Select the input content
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Copy the content to clipboard
+    document.execCommand('copy');
+    
+    // Remove the temporary element
+    document.body.removeChild(tempInput);
+    
+    // Show success message
+    showSuccess('URL copied to clipboard! You can now share this diff.');
+  }
+  
+  // Function to enable focus mode
+  function enableFocusMode() {
+    document.body.classList.add('focus-mode');
+    isFocusMode = true;
+    
+    // Update button state
+    if (multiFocusModeBtn) {
+      multiFocusModeBtn.classList.add('active');
+      multiFocusModeBtn.title = 'Exit focus mode';
+    }
+    
+    // Sync theme toggle state
+    if (focusModeThemeToggle) {
+      const isDarkMode = localStorage.getItem('theme') === 'dark' || 
+                        (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+      focusModeThemeToggle.checked = isDarkMode;
+    }
+    
+    // Update URL parameter without reloading the page
+    const url = new URL(window.location);
+    url.searchParams.set('focus', 'true');
+    window.history.pushState({}, '', url);
+  }
+  
+  // Function to disable focus mode
+  function disableFocusMode() {
+    document.body.classList.remove('focus-mode');
+    isFocusMode = false;
+    
+    // Update button state
+    if (multiFocusModeBtn) {
+      multiFocusModeBtn.classList.remove('active');
+      multiFocusModeBtn.title = 'Enter focus mode';
+    }
+    
+    // Update URL parameter without reloading the page
+    const url = new URL(window.location);
+    url.searchParams.set('focus', 'false');
+    window.history.pushState({}, '', url);
   }
   
   function collapseAllDiffs() {
@@ -955,6 +1128,66 @@ document.addEventListener('DOMContentLoaded', () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Diffie Report</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <script>
+          // Define the file URL configuration
+          window.fileUrlConfig = {
+            enabled: ${JSON.stringify(window.fileUrlConfig ? window.fileUrlConfig.enabled : false)},
+            prefix: ${JSON.stringify(window.fileUrlConfig ? window.fileUrlConfig.prefix : '')},
+            useAbsolutePaths: ${JSON.stringify(window.fileUrlConfig ? window.fileUrlConfig.useAbsolutePaths : false)}
+          };
+          
+          // Function to handle file link clicks
+          function openFileLink(filePath) {
+            if (!filePath) return;
+            
+            try {
+              // First try using the embedded configuration
+              if (window.fileUrlConfig && window.fileUrlConfig.enabled && window.fileUrlConfig.prefix) {
+                const url = window.fileUrlConfig.prefix + filePath;
+                window.open(url, '_blank');
+                return;
+              }
+              
+              // Fallback: Try to get configuration from opener window
+              if (window.opener && window.opener.fileUrlConfig) {
+                const openerConfig = window.opener.fileUrlConfig;
+                if (openerConfig.enabled && openerConfig.prefix) {
+                  const url = openerConfig.prefix + filePath;
+                  window.open(url, '_blank');
+                  return;
+                }
+              }
+              
+              // Last resort: Just show the filename in an alert
+              console.log('Unable to open file: ' + filePath);
+              alert('Unable to open file: ' + filePath + '\\n\\nFile URL configuration is not available.');
+            } catch (e) {
+              console.error('Error opening file:', e);
+              alert('Error opening file: ' + filePath);
+            }
+          }
+          
+          // Function to scroll to an element by ID
+          function scrollToElement(id) {
+            const element = document.getElementById(id);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+          
+          // Initialize event listeners when DOM is loaded
+          document.addEventListener('DOMContentLoaded', function() {
+            // Add click event listeners to all file links
+            document.querySelectorAll('.file-link').forEach(function(link) {
+              link.addEventListener('click', function() {
+                const filePath = this.getAttribute('data-path');
+                if (filePath) {
+                  openFileLink(filePath);
+                }
+              });
+            });
+          });
+        </script>
         <style>
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -966,8 +1199,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           .report-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 1px solid #eaeaea;
             position: relative;
           }
@@ -1001,14 +1234,15 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           .summary {
             background-color: #f9f9f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
           }
           .summary h2 {
             margin-top: 0;
             border-bottom: 1px solid #eaeaea;
             padding-bottom: 10px;
+            font-size: 20px;
           }
           .stats-container {
             display: flex;
@@ -1040,17 +1274,22 @@ document.addEventListener('DOMContentLoaded', () => {
             color: #92400e;
           }
           .diff-results {
-            margin-top: 30px;
+            margin-top: 20px;
+          }
+          .diff-results h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
           }
           .diff-item {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border: 1px solid #eaeaea;
             border-radius: 5px;
             overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
           }
           .diff-header {
             background-color: #f3f4f6;
-            padding: 15px;
+            padding: 12px 15px;
             border-bottom: 1px solid #eaeaea;
             display: flex;
             justify-content: space-between;
@@ -1079,7 +1318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             white-space: pre;
           }
           .identical-message {
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             color: #047857;
             font-weight: bold;
@@ -1121,9 +1360,19 @@ document.addEventListener('DOMContentLoaded', () => {
             cursor: pointer;
             color: #3b82f6;
             text-decoration: underline;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
           }
           .file-link:hover {
             color: #2563eb;
+            background-color: rgba(59, 130, 246, 0.1);
+          }
+          .file-link i {
+            font-size: 0.8em;
           }
           .side-by-side-diff {
             display: flex;
@@ -1171,6 +1420,84 @@ document.addEventListener('DOMContentLoaded', () => {
             border-top: 1px solid #eaeaea;
             border-bottom: 1px solid #eaeaea;
           }
+          .file-pairs-list {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #eaeaea;
+          }
+          .file-pairs-list h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 10px;
+            font-size: 20px;
+          }
+          .file-pair-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .file-pair-item:last-child {
+            border-bottom: none;
+          }
+          .file-pair-paths {
+            flex: 1;
+          }
+          .file-pair-status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+          }
+          .status-identical {
+            background-color: #d1fae5;
+            color: #065f46;
+          }
+          .status-different {
+            background-color: #fee2e2;
+            color: #991b1b;
+          }
+          .file-path {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            word-break: break-all;
+            padding: 4px 0;
+            margin-bottom: 2px;
+          }
+          .file-path:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+          }
+          .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+          }
+          .nav-link {
+            padding: 8px 15px;
+            background-color: #f3f4f6;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            transition: all 0.2s ease;
+          }
+          .nav-link:hover {
+            background-color: #e5e7eb;
+            color: #1f2937;
+          }
+          .diff-navigation {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            padding: 10px 0;
+            z-index: 100;
+            border-bottom: 1px solid #eaeaea;
+            margin-bottom: 15px;
+          }
           @media print {
             body {
               font-size: 12px;
@@ -1183,6 +1510,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             .page-break {
               page-break-before: always;
+            }
+            .diff-navigation {
+              display: none;
             }
           }
         </style>
@@ -1241,46 +1571,62 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         
-        <div class="diff-results">
-          <h2>Detailed Results</h2>
+        <div class="nav-links">
+          <a href="#diff-results" class="nav-link" onclick="scrollToElement('diff-results'); return false;">
+            <i class="fas fa-code-branch"></i> Diff Results
+          </a>
+          <a href="#file-pairs" class="nav-link" onclick="scrollToElement('file-pairs'); return false;">
+            <i class="fas fa-list"></i> File Pairs List
+          </a>
+        </div>
+        
+        <div id="diff-results" class="diff-results">
+          <div class="diff-navigation">
+            <h2>Diff Results</h2>
+          </div>
     `;
     
-    // Add each diff result
-    results.forEach((result, index) => {
-      const { file1, file2, diff, identical } = result;
+    // First, show only the different files
+    const differentFiles = results.filter(result => !result.identical);
+    
+    // Add each diff result for different files
+    differentFiles.forEach((result, index) => {
+      const { file1, file2, diff } = result;
       const stats = parseDiffStats(diff);
       
       html += `
-        <div class="diff-item${index > 0 ? ' page-break' : ''}">
+        <div id="diff-${index}" class="diff-item${index > 0 ? ' page-break' : ''}">
           <div class="diff-header">
             <div class="diff-files">
               ${getFileName(file1)} ↔ ${getFileName(file2)}
             </div>
-            ${!identical ? `
-              <div class="diff-stats">
-                <div class="stat-item">
-                  <span class="additions">+${stats.additions}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="deletions">-${stats.deletions}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="changes">~${stats.changes}</span>
-                </div>
+            <div class="diff-stats">
+              <div class="stat-item">
+                <span class="additions">+${stats.additions}</span>
               </div>
-            ` : ''}
+              <div class="stat-item">
+                <span class="deletions">-${stats.deletions}</span>
+              </div>
+              <div class="stat-item">
+                <span class="changes">~${stats.changes}</span>
+              </div>
+            </div>
           </div>
           <div class="diff-content">
             <div class="side-by-side-container">
               <div class="side-by-side-header">
-                <div class="file-column file-link" data-path="${file1}">${getFileName(file1)}</div>
-                <div class="file-column file-link" data-path="${file2}">${getFileName(file2)}</div>
-              </div>
-              ${identical ? `
-                <div class="identical-message">
-                  Files are identical. No differences found.
+                <div class="file-column">
+                  <span class="file-link" data-path="${file1}" title="Open file in new tab">
+                    <i class="fas fa-external-link-alt"></i> ${getFileName(file1)}
+                  </span>
                 </div>
-              ` : (() => {
+                <div class="file-column">
+                  <span class="file-link" data-path="${file2}" title="Open file in new tab">
+                    <i class="fas fa-external-link-alt"></i> ${getFileName(file2)}
+                  </span>
+                </div>
+              </div>
+              ${(() => {
                 // Generate side-by-side diff content
                 const sideBySideDiff = formatSideBySideDiffForReport(diff);
                 return `
@@ -1296,41 +1642,42 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     });
     
+    // Add file pairs list at the end
     html += `
         </div>
-        <script>
-          // Function to handle file link clicks
-          document.addEventListener('DOMContentLoaded', function() {
-            // Get file URL configuration from parent window if available
-            let fileUrlConfig = {
-              enabled: false,
-              prefix: '',
-              useAbsolutePaths: false
-            };
-            
-            try {
-              if (window.opener && window.opener.fileUrlConfig) {
-                fileUrlConfig = window.opener.fileUrlConfig;
-              }
-            } catch (e) {
-              console.error('Error accessing parent window config:', e);
-            }
-            
-            // Add click event listeners to file links
-            document.querySelectorAll('.file-link').forEach(function(link) {
-              link.addEventListener('click', function() {
-                const filePath = this.getAttribute('data-path');
-                if (filePath && fileUrlConfig.enabled && fileUrlConfig.prefix) {
-                  let path = filePath;
-                  // Create the full URL
-                  const url = fileUrlConfig.prefix + path;
-                  // Open in a new tab
-                  window.open(url, '_blank');
-                }
-              });
-            });
-          });
-        </script>
+        
+        <div id="file-pairs" class="file-pairs-list">
+          <h2>File Pairs List</h2>
+    `;
+    
+    // Add each file pair
+    results.forEach((result, index) => {
+      const { file1, file2, identical } = result;
+      
+      html += `
+        <div class="file-pair-item">
+          <div class="file-pair-paths">
+            <div class="file-path">
+              <span class="file-link" data-path="${file1}" title="Open file in new tab">
+                <i class="fas fa-external-link-alt"></i> ${file1}
+              </span>
+            </div>
+            <div class="file-path">
+              <span class="file-link" data-path="${file2}" title="Open file in new tab">
+                <i class="fas fa-external-link-alt"></i> ${file2}
+              </span>
+            </div>
+          </div>
+          <div class="file-pair-status ${identical ? 'status-identical' : 'status-different'}">
+            ${identical ? 'Identical' : `<a href="#diff-${differentFiles.findIndex(d => d.file1 === file1 && d.file2 === file2)}" 
+              onclick="scrollToElement('diff-${differentFiles.findIndex(d => d.file1 === file1 && d.file2 === file2)}'); return false;">Different</a>`}
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `
+        </div>
       </body>
       </html>
     `;

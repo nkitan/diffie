@@ -7,11 +7,33 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="themes.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app-container">
+    <div class="focus-mode-controls">
+      <button id="focus-mode-toggle" title="Exit focus mode">
+        <i class="fas fa-expand"></i> Exit Focus Mode
+      </button>
+      <button id="focus-mode-generate-report" class="secondary-btn" title="Generate report">
+        <i class="fas fa-file-export"></i>
+        Generate Report
+      </button>
+      <button id="focus-mode-share-btn" class="secondary-btn" title="Share this diff">
+        <i class="fas fa-share-alt"></i>
+        Share
+      </button>
+      <div class="focus-mode-theme-toggle">
+        <i class="fas fa-sun"></i>
+        <div class="toggle-switch">
+          <input type="checkbox" id="focus-mode-theme-toggle-checkbox">
+          <label for="focus-mode-theme-toggle-checkbox"></label>
+        </div>
+        <i class="fas fa-moon"></i>
+      </div>
+    </div>
     <header>
       <div class="logo">
         <i class="fas fa-code-compare"></i>
@@ -24,6 +46,102 @@
           <label for="theme-toggle-checkbox"></label>
         </div>
         <i class="fas fa-moon"></i>
+        
+        <div class="theme-selector">
+          <button id="theme-selector-btn" class="control-btn" title="Change theme">
+            <i class="fas fa-palette"></i>
+          </button>
+          <div id="theme-selector-dropdown" class="theme-selector-dropdown">
+            <div class="theme-dropdown-header">
+              <i class="fas fa-palette"></i>
+              <span>Select Theme</span>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">Default</div>
+              <div class="theme-option" data-theme="default" data-dark="false">
+                <div class="theme-color-preview default-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="default" data-dark="true">
+                <div class="theme-color-preview default-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">Cloudflare</div>
+              <div class="theme-option" data-theme="cloudflare" data-dark="false">
+                <div class="theme-color-preview cloudflare-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="cloudflare" data-dark="true">
+                <div class="theme-color-preview cloudflare-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">GitLab</div>
+              <div class="theme-option" data-theme="gitlab" data-dark="false">
+                <div class="theme-color-preview gitlab-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="gitlab" data-dark="true">
+                <div class="theme-color-preview gitlab-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">GitHub</div>
+              <div class="theme-option" data-theme="github" data-dark="false">
+                <div class="theme-color-preview github-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="github" data-dark="true">
+                <div class="theme-color-preview github-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">VS Code</div>
+              <div class="theme-option" data-theme="vscode" data-dark="false">
+                <div class="theme-color-preview vscode-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="vscode" data-dark="true">
+                <div class="theme-color-preview vscode-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">Material</div>
+              <div class="theme-option" data-theme="material" data-dark="false">
+                <div class="theme-color-preview material-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="material" data-dark="true">
+                <div class="theme-color-preview material-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            
+            <div class="theme-category">
+              <div class="theme-category-label">Obsidian</div>
+              <div class="theme-option" data-theme="obsidian" data-dark="false">
+                <div class="theme-color-preview obsidian-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="obsidian" data-dark="true">
+                <div class="theme-color-preview obsidian-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -255,6 +373,9 @@
             <button id="multi-expand-all-btn" class="control-btn" title="Expand all diffs">
               <i class="fas fa-expand-alt"></i>
             </button>
+            <button id="multi-focus-mode-btn" class="control-btn" title="Enter focus mode">
+              <i class="fas fa-compress"></i>
+            </button>
           </div>
         </div>
         
@@ -272,7 +393,7 @@
                 <i class="fas fa-not-equal"></i>
                 <span id="different-files-count">0</span> with differences
               </div>
-              <div class="stat-item">
+              <div class="stat-item identical-files">
                 <i class="fas fa-equals"></i>
                 <span id="identical-files-count">0</span> identical
               </div>
@@ -300,7 +421,7 @@
             <div class="navigation-controls">
               <button id="show-all-diffs-btn" class="nav-btn active">All</button>
               <button id="show-changed-diffs-btn" class="nav-btn">Changed</button>
-              <button id="show-identical-diffs-btn" class="nav-btn">Identical</button>
+              <button id="show-identical-diffs-btn" class="nav-btn identical-btn">Identical</button>
             </div>
           </div>
           <div id="diff-navigation-list" class="navigation-list">

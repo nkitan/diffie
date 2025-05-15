@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   let originalFile1Path = '';
   let originalFile2Path = '';
+  let currentTheme = localStorage.getItem('themeStyle') || 'default';
+  let isDarkMode = localStorage.getItem('theme') === 'dark' || 
+                  (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
   
   // DOM Elements
   const file1PathInput = document.getElementById('file1-path');
@@ -43,6 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const deletionsCount = document.getElementById('deletions-count');
   const changesCount = document.getElementById('changes-count');
   const themeToggle = document.getElementById('theme-toggle-checkbox');
+  const themeSelectorBtn = document.getElementById('theme-selector-btn');
+  const themeSelectorDropdown = document.getElementById('theme-selector-dropdown');
+  const themeOptions = document.querySelectorAll('.theme-option');
   const errorToast = document.getElementById('error-toast');
   const errorMessage = document.getElementById('error-message');
   const toastClose = document.querySelector('.toast-close');
@@ -72,6 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
   showCompleteBtn.addEventListener('click', toggleCompleteFiles);
   shareBtn.addEventListener('click', shareDiff);
   themeToggle.addEventListener('change', toggleTheme);
+  themeSelectorBtn.addEventListener('click', toggleThemeSelector);
+  themeOptions.forEach(option => {
+    option.addEventListener('click', () => selectTheme(option));
+  });
+  document.addEventListener('click', closeThemeSelectorOnClickOutside);
   toastClose.addEventListener('click', () => errorToast.classList.add('hidden'));
   
   // Add event listener for success toast close button if it exists
@@ -91,12 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.persistent-toggle-btn').addEventListener('click', toggleFilenameBar);
   }
 
-  // Check for saved theme preference
-  if (localStorage.getItem('theme') === 'dark' || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'))) {
-    document.body.classList.add('dark-theme');
-    themeToggle.checked = true;
-  }
+  // Apply saved theme preference
+  applyTheme(currentTheme, isDarkMode);
+  themeToggle.checked = isDarkMode;
   
   // Check for saved filename bar preference
   if (localStorage.getItem('filenameBarCollapsed') === 'true' && filenameBar) {
@@ -127,8 +135,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.ui && data.ui.TABS) {
           const tabsVisible = data.ui.TABS.VISIBLE;
           
-          // If only local tab is visible, don't process server file params
-          if (tabsVisible === 'local') {
+          // Convert tabsVisible to array format for easier checking
+          let visibleTabs = [];
+          if (tabsVisible === 'all' || tabsVisible === 'both') {
+            visibleTabs = ['server', 'local', 'multiple'];
+          } else if (Array.isArray(tabsVisible)) {
+            visibleTabs = tabsVisible;
+          } else {
+            visibleTabs = [tabsVisible];
+          }
+          
+          // Check which tabs are visible
+          const isServerVisible = visibleTabs.includes('server');
+          const isLocalVisible = visibleTabs.includes('local');
+          const isMultipleVisible = visibleTabs.includes('multiple');
+          
+          // If no tabs are visible, don't process any params
+          if (visibleTabs.length === 0) {
             return;
           }
           
@@ -136,9 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
           
           // Check for multiple file pairs format
           const pairsParam = urlParams.getAll('pairs');
-          if (pairsParam && pairsParam.length > 0) {
-            // Only switch tab if tab switching is allowed or both tabs are visible
-            if (tabsVisible === 'both' && data.ui.TABS.ALLOW_SWITCHING !== false) {
+          if (pairsParam && pairsParam.length > 0 && isMultipleVisible) {
+            // Only switch tab if tab switching is allowed and multiple tab is visible
+            if (data.ui.TABS.ALLOW_SWITCHING !== false) {
               switchTab('multi-files');
               
               // Process the pairs and trigger multi-file comparison
@@ -153,9 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const mode = urlParams.get('mode') || 'server';
           
           if (file1 && file2) {
-            if (mode === 'server') {
-              // Only switch tab if tab switching is allowed or both tabs are visible
-              if (tabsVisible === 'both' && data.ui.TABS.ALLOW_SWITCHING !== false) {
+            if (mode === 'server' && isServerVisible) {
+              // Only switch tab if tab switching is allowed and server tab is visible
+              if (data.ui.TABS.ALLOW_SWITCHING !== false) {
                 switchTab('server-files');
               }
               
@@ -789,8 +812,126 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleTheme() {
-    document.body.classList.toggle('dark-theme');
-    localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    isDarkMode = !isDarkMode;
+    applyTheme(currentTheme, isDarkMode);
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    
+    // Update the focus mode theme toggle if it exists
+    const focusModeThemeToggle = document.getElementById('focus-mode-theme-toggle-checkbox');
+    if (focusModeThemeToggle) {
+      focusModeThemeToggle.checked = isDarkMode;
+    }
+  }
+  
+  // Make toggleTheme available globally for multi-diff.js
+  window.toggleTheme = toggleTheme;
+  
+  function toggleThemeSelector() {
+    themeSelectorDropdown.classList.toggle('show');
+    
+    // Mark the current theme as active
+    themeOptions.forEach(option => {
+      const optionTheme = option.dataset.theme;
+      const optionDark = option.dataset.dark === 'true';
+      
+      if (optionTheme === currentTheme && optionDark === isDarkMode) {
+        option.classList.add('active');
+      } else {
+        option.classList.remove('active');
+      }
+    });
+  }
+  
+  function closeThemeSelectorOnClickOutside(event) {
+    if (themeSelectorDropdown.classList.contains('show') && 
+        !themeSelectorBtn.contains(event.target) && 
+        !themeSelectorDropdown.contains(event.target)) {
+      themeSelectorDropdown.classList.remove('show');
+    }
+  }
+  
+  function selectTheme(option) {
+    const theme = option.dataset.theme;
+    const dark = option.dataset.dark === 'true';
+    
+    // Update state
+    currentTheme = theme;
+    isDarkMode = dark;
+    
+    // Apply the theme
+    applyTheme(theme, dark);
+    
+    // Save preferences
+    localStorage.setItem('themeStyle', theme);
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+    
+    // Update checkbox state
+    themeToggle.checked = dark;
+    
+    // Close dropdown
+    themeSelectorDropdown.classList.remove('show');
+  }
+  
+  function applyTheme(theme, dark) {
+    // Remove all theme classes
+    document.body.classList.remove(
+      'dark-theme', 
+      'cloudflare-theme', 
+      'cloudflare-dark-theme', 
+      'gitlab-theme', 
+      'gitlab-dark-theme',
+      'github-theme',
+      'github-dark-theme',
+      'vscode-theme',
+      'vscode-dark-theme',
+      'material-theme',
+      'material-dark-theme',
+      'obsidian-theme',
+      'obsidian-dark-theme'
+    );
+    
+    // Apply the selected theme
+    if (theme === 'default') {
+      if (dark) {
+        document.body.classList.add('dark-theme');
+      }
+    } else if (theme === 'cloudflare') {
+      if (dark) {
+        document.body.classList.add('cloudflare-dark-theme');
+      } else {
+        document.body.classList.add('cloudflare-theme');
+      }
+    } else if (theme === 'gitlab') {
+      if (dark) {
+        document.body.classList.add('gitlab-dark-theme');
+      } else {
+        document.body.classList.add('gitlab-theme');
+      }
+    } else if (theme === 'github') {
+      if (dark) {
+        document.body.classList.add('github-dark-theme');
+      } else {
+        document.body.classList.add('github-theme');
+      }
+    } else if (theme === 'vscode') {
+      if (dark) {
+        document.body.classList.add('vscode-dark-theme');
+      } else {
+        document.body.classList.add('vscode-theme');
+      }
+    } else if (theme === 'material') {
+      if (dark) {
+        document.body.classList.add('material-dark-theme');
+      } else {
+        document.body.classList.add('material-theme');
+      }
+    } else if (theme === 'obsidian') {
+      if (dark) {
+        document.body.classList.add('obsidian-dark-theme');
+      } else {
+        document.body.classList.add('obsidian-theme');
+      }
+    }
   }
   
   function toggleCompleteFiles() {
@@ -1033,32 +1174,66 @@ document.addEventListener('DOMContentLoaded', () => {
             const tabsContainer = document.querySelector('.tabs');
             const serverTabBtn = document.querySelector('.tab-btn[data-tab="server-files"]');
             const localTabBtn = document.querySelector('.tab-btn[data-tab="local-files"]');
+            const multiTabBtn = document.querySelector('.tab-btn[data-tab="multi-files"]');
             const serverTabContent = document.getElementById('server-files-tab');
             const localTabContent = document.getElementById('local-files-tab');
+            const multiTabContent = document.getElementById('multi-files-tab');
             
-            // Configure tab visibility
-            if (data.ui.TABS.VISIBLE === 'server') {
-              // Show only server tab
-              if (localTabBtn) localTabBtn.classList.add('hidden');
-              if (localTabContent) localTabContent.classList.add('hidden');
-              if (serverTabBtn) serverTabBtn.classList.add('active');
-              if (serverTabContent) serverTabContent.classList.remove('hidden');
+            // Convert tabsVisible to array format for easier checking
+            let visibleTabs = [];
+            const tabsVisible = data.ui.TABS.VISIBLE;
+            
+            if (tabsVisible === 'all' || tabsVisible === 'both') {
+              visibleTabs = ['server', 'local', 'multiple'];
+            } else if (Array.isArray(tabsVisible)) {
+              // Convert any 'multiple' to the correct internal name
+              visibleTabs = tabsVisible.map(tab => tab === 'multiple' ? 'multiple' : tab);
+            } else {
+              visibleTabs = [tabsVisible];
+            }
+            
+            // Map tab names to their elements
+            const tabMap = {
+              'server': { btn: serverTabBtn, content: serverTabContent },
+              'local': { btn: localTabBtn, content: localTabContent },
+              'multiple': { btn: multiTabBtn, content: multiTabContent }
+            };
+            
+            // Hide all tabs first
+            Object.values(tabMap).forEach(tab => {
+              if (tab.btn) tab.btn.classList.add('hidden');
+              if (tab.content) tab.content.classList.add('hidden');
+            });
+            
+            // Show only the visible tabs
+            let firstVisibleTab = null;
+            visibleTabs.forEach(tabName => {
+              const tab = tabMap[tabName];
+              if (tab && tab.btn) {
+                tab.btn.classList.remove('hidden');
+                if (!firstVisibleTab) firstVisibleTab = tabName;
+              }
+            });
+            
+            // If only one tab is visible, make it active and hide the tabs container
+            if (visibleTabs.length === 1 && firstVisibleTab) {
+              const tab = tabMap[firstVisibleTab];
+              if (tab.btn) tab.btn.classList.add('active');
+              if (tab.content) tab.content.classList.remove('hidden');
               
               // Hide the tabs container if only one tab is visible
               if (tabsContainer) tabsContainer.classList.add('hidden');
             } 
-            else if (data.ui.TABS.VISIBLE === 'local') {
-              // Show only local tab
-              if (serverTabBtn) serverTabBtn.classList.add('hidden');
-              if (serverTabContent) serverTabContent.classList.add('hidden');
-              if (localTabBtn) localTabBtn.classList.add('active');
-              if (localTabContent) localTabContent.classList.remove('hidden');
+            // If multiple tabs are visible
+            else if (visibleTabs.length > 1) {
+              // Make the first tab active
+              if (firstVisibleTab) {
+                const tab = tabMap[firstVisibleTab];
+                if (tab.btn) tab.btn.classList.add('active');
+                if (tab.content) tab.content.classList.remove('hidden');
+              }
               
-              // Hide the tabs container if only one tab is visible
-              if (tabsContainer) tabsContainer.classList.add('hidden');
-            }
-            else {
-              // Both tabs are visible, check if switching is allowed
+              // Check if switching is allowed
               if (data.ui.TABS.ALLOW_SWITCHING === false) {
                 // Disable tab switching by removing event listeners
                 tabBtns.forEach(btn => {

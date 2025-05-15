@@ -19,7 +19,7 @@ module.exports = {
   // UI Configuration options
   UI: {
     // Whether to show the app info section at the top of the page
-    SHOW_APP_INFO: true,
+    SHOW_APP_INFO: false,
     
     // Whether word wrap should be enabled by default
     WORD_WRAP_DEFAULT: true,
@@ -29,11 +29,12 @@ module.exports = {
     
     // Tab configuration
     TABS: {
-      // Which tabs to show: "both", "server", or "local"
-      VISIBLE: "both",
+      // Which tabs to show: "all", "server", "local", "multiple", or any combination as an array
+      // Examples: "all", "server", ["server", "local"], ["server", "multiple"], ["local", "multiple"], etc.
+      VISIBLE: ["multiple", "local"],
       
       // Whether to allow users to switch between tabs
-      // Only applicable when VISIBLE is set to "both"
+      // Only applicable when multiple tabs are visible
       ALLOW_SWITCHING: true
     },
     

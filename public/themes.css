@@ -1,0 +1,563 @@
+/* Themes for Diffie */
+
+/* Default theme (already defined in styles.css) */
+
+/* Cloudflare theme */
+.cloudflare-theme {
+  --primary-color: #f48120;
+  --primary-color-rgb: 244, 129, 32;
+  --primary-hover: #f6821f;
+  --bg-color: #ffffff;
+  --bg-color-rgb: 255, 255, 255;
+  --text-color: #1d1d1d;
+  --secondary-text: #595959;
+  --border-color: #e5e5e5;
+  --border-color-rgb: 229, 229, 229;
+  --card-bg: #f6f6f6;
+  --card-bg-rgb: 246, 246, 246;
+  --addition-color: #d1fae5;
+  --addition-color-rgb: 209, 250, 229;
+  --addition-text: #065f46;
+  --deletion-color: #fee2e2;
+  --deletion-color-rgb: 254, 226, 226;
+  --deletion-text: #991b1b;
+  --change-color: #fff7ed;
+  --change-color-rgb: 255, 247, 237;
+  --change-text: #9a3412;
+  --line-number-bg: #f3f3f3;
+  --line-number-text: #888888;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* Cloudflare dark theme */
+.cloudflare-dark-theme {
+  --primary-color: #f48120;
+  --primary-color-rgb: 244, 129, 32;
+  --primary-hover: #f6821f;
+  --bg-color: #1d1d1d;
+  --bg-color-rgb: 29, 29, 29;
+  --text-color: #f5f5f5;
+  --secondary-text: #b3b3b3;
+  --border-color: #333333;
+  --border-color-rgb: 51, 51, 51;
+  --card-bg: #2d2d2d;
+  --card-bg-rgb: 45, 45, 45;
+  --addition-color: #064e3b;
+  --addition-color-rgb: 6, 78, 59;
+  --addition-text: #a7f3d0;
+  --deletion-color: #7f1d1d;
+  --deletion-color-rgb: 127, 29, 29;
+  --deletion-text: #fecaca;
+  --change-color: #78350f;
+  --change-color-rgb: 120, 53, 15;
+  --change-text: #fdba74;
+  --line-number-bg: #2d2d2d;
+  --line-number-text: #888888;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* GitLab theme - Based on Pajamas Design System */
+.gitlab-theme {
+  --primary-color: #7759c2;
+  --primary-color-rgb: 119, 89, 194;
+  --primary-hover: #5943b6;
+  --bg-color: #ffffff;
+  --bg-color-rgb: 255, 255, 255;
+  --text-color: #2b2838;
+  --secondary-text: #45424d;
+  --border-color: #d1d0d3;
+  --border-color-rgb: 209, 208, 211;
+  --card-bg: #fafafa;
+  --card-bg-rgb: 250, 250, 250;
+  --addition-color: #c5f4ec;
+  --addition-color-rgb: 197, 244, 236;
+  --addition-text: #10b1b1;
+  --deletion-color: #fbe9eb;
+  --deletion-color-rgb: 251, 233, 235;
+  --deletion-text: #e24329;
+  --change-color: #fdf1dd;
+  --change-color-rgb: 253, 241, 221;
+  --change-text: #fc6d26;
+  --line-number-bg: #f5f5f5;
+  --line-number-text: #74717a;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* GitLab dark theme - Based on Pajamas Design System */
+.gitlab-dark-theme {
+  --primary-color: #a989f5;
+  --primary-color-rgb: 169, 137, 245;
+  --primary-hover: #ceb3ef;
+  --bg-color: #171321;
+  --bg-color-rgb: 23, 19, 33;
+  --text-color: #ffffff;
+  --secondary-text: #a2a1a6;
+  --border-color: #45424d;
+  --border-color-rgb: 69, 66, 77;
+  --card-bg: #232150;
+  --card-bg-rgb: 35, 33, 80;
+  --addition-color: #0d532a;
+  --addition-color-rgb: 13, 83, 42;
+  --addition-text: #6fdac9;
+  --deletion-color: #5a1e14;
+  --deletion-color-rgb: 90, 30, 20;
+  --deletion-text: #fc6d26;
+  --change-color: #2f2a6b;
+  --change-color-rgb: 47, 42, 107;
+  --change-text: #fca326;
+  --line-number-bg: #2b2838;
+  --line-number-text: #a2a1a6;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* GitHub theme - Based on Primer Design System */
+.github-theme {
+  --primary-color: #2dba4e;
+  --primary-color-rgb: 45, 186, 78;
+  --primary-hover: #2da44e;
+  --bg-color: #ffffff;
+  --bg-color-rgb: 255, 255, 255;
+  --text-color: #24292e;
+  --secondary-text: #586069;
+  --border-color: #e1e4e8;
+  --border-color-rgb: 225, 228, 232;
+  --card-bg: #fafbfc;
+  --card-bg-rgb: 250, 251, 252;
+  --addition-color: #e6ffec;
+  --addition-color-rgb: 230, 255, 236;
+  --addition-text: #22863a;
+  --deletion-color: #ffebe9;
+  --deletion-color-rgb: 255, 235, 233;
+  --deletion-text: #cb2431;
+  --change-color: #fff8c5;
+  --change-color-rgb: 255, 248, 197;
+  --change-text: #b08800;
+  --line-number-bg: #f6f8fa;
+  --line-number-text: #959da5;
+  --shadow-sm: 0 1px 2px rgba(27, 31, 35, 0.1);
+  --shadow-md: 0 3px 6px rgba(149, 157, 165, 0.15);
+  --shadow-lg: 0 8px 24px rgba(149, 157, 165, 0.2);
+  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* GitHub dark theme - Based on Primer Design System */
+.github-dark-theme {
+  --primary-color: #2dba4e;
+  --primary-color-rgb: 45, 186, 78;
+  --primary-hover: #3dc55a;
+  --bg-color: #0d1117;
+  --bg-color-rgb: 13, 17, 23;
+  --text-color: #c9d1d9;
+  --secondary-text: #8b949e;
+  --border-color: #30363d;
+  --border-color-rgb: 48, 54, 61;
+  --card-bg: #161b22;
+  --card-bg-rgb: 22, 27, 34;
+  --addition-color: #033a16;
+  --addition-color-rgb: 3, 58, 22;
+  --addition-text: #56d364;
+  --deletion-color: #67060c;
+  --deletion-color-rgb: 103, 6, 12;
+  --deletion-text: #f85149;
+  --change-color: #5a4a00;
+  --change-color-rgb: 90, 74, 0;
+  --change-text: #e3b341;
+  --line-number-bg: #161b22;
+  --line-number-text: #6e7681;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* VS Code theme - Based on official VS Code Light+ theme */
+.vscode-theme {
+  --primary-color: #007acc;
+  --primary-color-rgb: 0, 122, 204;
+  --primary-hover: #179ff1;
+  --bg-color: #ffffff;
+  --bg-color-rgb: 255, 255, 255;
+  --text-color: #1e1e1e;
+  --secondary-text: #6c6c6c;
+  --border-color: #d4d4d4;
+  --border-color-rgb: 212, 212, 212;
+  --card-bg: #f3f3f3;
+  --card-bg-rgb: 243, 243, 243;
+  --addition-color: #c6f0c2;
+  --addition-color-rgb: 198, 240, 194;
+  --addition-text: #22863a;
+  --deletion-color: #ffdce0;
+  --deletion-color-rgb: 255, 220, 224;
+  --deletion-text: #d73a49;
+  --change-color: #ffc914;
+  --change-color-rgb: 255, 201, 20;
+  --change-text: #795e26;
+  --line-number-bg: #f3f3f3;
+  --line-number-text: #237893;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* VS Code dark theme - Based on official VS Code Dark+ theme */
+.vscode-dark-theme {
+  --primary-color: #179ff1;
+  --primary-color-rgb: 23, 159, 241;
+  --primary-hover: #9cdcfe;
+  --bg-color: #1e1e1e;
+  --bg-color-rgb: 30, 30, 30;
+  --text-color: #d4d4d4;
+  --secondary-text: #a0a0a0;
+  --border-color: #3c3c3c;
+  --border-color-rgb: 60, 60, 60;
+  --card-bg: #252526;
+  --card-bg-rgb: 37, 37, 38;
+  --addition-color: #1b4d1b;
+  --addition-color-rgb: 27, 77, 27;
+  --addition-text: #89d185;
+  --deletion-color: #4b1818;
+  --deletion-color-rgb: 75, 24, 24;
+  --deletion-text: #ce9178;
+  --change-color: #3e3d2c;
+  --change-color-rgb: 62, 61, 44;
+  --change-text: #da70d6;
+  --line-number-bg: #252526;
+  --line-number-text: #858585;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Material Design theme - Based on Material Design 3 */
+.material-theme {
+  --primary-color: #6750a4;
+  --primary-color-rgb: 103, 80, 164;
+  --primary-hover: #7965af;
+  --bg-color: #fffbff;
+  --bg-color-rgb: 255, 251, 255;
+  --text-color: #1c1b1f;
+  --secondary-text: #49454f;
+  --border-color: #e7e0ec;
+  --border-color-rgb: 231, 224, 236;
+  --card-bg: #f7f2fa;
+  --card-bg-rgb: 247, 242, 250;
+  --addition-color: #dcedc8;
+  --addition-color-rgb: 220, 237, 200;
+  --addition-text: #33691e;
+  --deletion-color: #ffcdd2;
+  --deletion-color-rgb: 255, 205, 210;
+  --deletion-text: #c62828;
+  --change-color: #fff9c4;
+  --change-color-rgb: 255, 249, 196;
+  --change-text: #f57f17;
+  --line-number-bg: #f7f2fa;
+  --line-number-text: #79747e;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.1);
+  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* Material Design dark theme - Based on Material Design 3 */
+.material-dark-theme {
+  --primary-color: #d0bcff;
+  --primary-color-rgb: 208, 188, 255;
+  --primary-hover: #cfc4ff;
+  --bg-color: #1c1b1f;
+  --bg-color-rgb: 28, 27, 31;
+  --text-color: #e6e1e5;
+  --secondary-text: #cac4d0;
+  --border-color: #49454f;
+  --border-color-rgb: 73, 69, 79;
+  --card-bg: #2d2c34;
+  --card-bg-rgb: 45, 44, 52;
+  --addition-color: #1b5e20;
+  --addition-color-rgb: 27, 94, 32;
+  --addition-text: #aed581;
+  --deletion-color: #b71c1c;
+  --deletion-color-rgb: 183, 28, 28;
+  --deletion-text: #ef9a9a;
+  --change-color: #4d3c00;
+  --change-color-rgb: 77, 60, 0;
+  --change-text: #fff59d;
+  --line-number-bg: #2d2c34;
+  --line-number-text: #938f99;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Obsidian theme */
+.obsidian-theme {
+  --primary-color: #a4a1aa;
+  --primary-color-rgb: 164, 161, 170;
+  --primary-hover: #c0bdc7;
+  --bg-color: #ffffff;
+  --bg-color-rgb: 255, 255, 255;
+  --text-color: #333333;
+  --secondary-text: #5a5a5a;
+  --border-color: #e0e0e0;
+  --border-color-rgb: 224, 224, 224;
+  --card-bg: #f5f5f5;
+  --card-bg-rgb: 245, 245, 245;
+  --addition-color: #e8f5e9;
+  --addition-color-rgb: 232, 245, 233;
+  --addition-text: #2e7d32;
+  --deletion-color: #ffebee;
+  --deletion-color-rgb: 255, 235, 238;
+  --deletion-text: #c62828;
+  --change-color: #f9f0d6;
+  --change-color-rgb: 249, 240, 214;
+  --change-text: #00305c;
+  --line-number-bg: #f5f5f5;
+  --line-number-text: #9e9e9e;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.1);
+  --font-mono: 'Roboto Mono', monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* Obsidian dark theme */
+.obsidian-dark-theme {
+  --primary-color: #7e7e7e;
+  --primary-color-rgb: 126, 126, 126;
+  --primary-hover: #aaaaaa;
+  --bg-color: #0c000a;
+  --bg-color-rgb: 12, 0, 10;
+  --text-color: #d7d7d7;
+  --secondary-text: #868888;
+  --border-color: #353839;
+  --border-color-rgb: 53, 56, 57;
+  --card-bg: #270025;
+  --card-bg-rgb: 39, 0, 37;
+  --addition-color: #051603;
+  --addition-color-rgb: 5, 22, 3;
+  --addition-text: #a7f3d0;
+  --deletion-color: #700017;
+  --deletion-color-rgb: 112, 0, 23;
+  --deletion-text: #fecaca;
+  --change-color: #040221;
+  --change-color-rgb: 4, 2, 33;
+  --change-text: #f9f0d6;
+  --line-number-bg: #363636;
+  --line-number-text: #5d6061;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Theme selector styles */
+.theme-selector {
+  position: relative;
+  margin-left: 1rem;
+}
+
+#theme-selector-btn {
+  background: none;
+  border: none;
+  color: var(--secondary-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#theme-selector-btn:hover {
+  color: var(--primary-color);
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  transform: rotate(15deg);
+}
+
+.theme-selector-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  display: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+.theme-selector-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.theme-selector-dropdown::-webkit-scrollbar-track {
+  background: var(--card-bg);
+  border-radius: 10px;
+}
+
+.theme-selector-dropdown::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 10px;
+}
+
+.theme-selector-dropdown.show {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.theme-dropdown-header {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.theme-dropdown-header i {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.theme-category {
+  margin-bottom: 0.75rem;
+  border-bottom: 1px dashed rgba(var(--border-color-rgb), 0.5);
+  padding-bottom: 0.5rem;
+}
+
+.theme-category:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.theme-category-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--secondary-text);
+  margin-bottom: 0.25rem;
+  padding: 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s ease;
+}
+
+.theme-option:hover {
+  background-color: var(--card-bg);
+}
+
+.theme-option.active {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.theme-color-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+/* Color previews for each theme */
+.default-light-preview {
+  background: linear-gradient(135deg, #4f46e5, #818cf8);
+}
+
+.default-dark-preview {
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+}
+
+.cloudflare-light-preview {
+  background: linear-gradient(135deg, #f6821f, #f9a45b);
+}
+
+.cloudflare-dark-preview {
+  background: linear-gradient(135deg, #f6821f, #f9a45b);
+}
+
+.gitlab-light-preview {
+  background: linear-gradient(135deg, #6e49cb, #9666ff);
+}
+
+.gitlab-dark-preview {
+  background: linear-gradient(135deg, #9666ff, #b28aff);
+}
+
+.github-light-preview {
+  background: linear-gradient(135deg, #2da44e, #4abb6a);
+}
+
+.github-dark-preview {
+  background: linear-gradient(135deg, #2da44e, #4abb6a);
+}
+
+.vscode-light-preview {
+  background: linear-gradient(135deg, #007acc, #0e9dff);
+}
+
+.vscode-dark-preview {
+  background: linear-gradient(135deg, #0e9dff, #3cacff);
+}
+
+.material-light-preview {
+  background: linear-gradient(135deg, #6750a4, #7965af);
+}
+
+.material-dark-preview {
+  background: linear-gradient(135deg, #d0bcff, #e9dfff);
+}
+
+.obsidian-light-preview {
+  background: linear-gradient(135deg, #a4a1aa, #c0bdc7);
+}
+
+.obsidian-dark-preview {
+  background: linear-gradient(135deg, #7e7e7e, #aaaaaa);
+}
