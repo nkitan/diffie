@@ -10,7 +10,7 @@ module.exports = {
   
   // Base path where all the files to be compared are located
   // Users will provide paths relative to this directory
-  BASE_PATH: '/mnt/d/Work/diffie/test',
+  BASE_PATH: '/home/nkitan/Work/diffie/test_files/',
   
   // Port for the server to listen on
   // Can be overridden with PORT environment variable

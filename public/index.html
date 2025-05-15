@@ -36,6 +36,7 @@
       <div class="tabs">
         <button class="tab-btn active" data-tab="server-files">Server Files</button>
         <button class="tab-btn" data-tab="local-files">Local Files</button>
+        <button class="tab-btn" data-tab="multi-files">Multiple Files</button>
       </div>
       
       <div class="tab-content" id="server-files-tab">
@@ -93,8 +94,56 @@
           </button>
         </div>
       </div>
+      
+      <div class="tab-content hidden" id="multi-files-tab">
+        <div class="multi-file-container">
+          <div class="multi-file-controls">
+            <button id="add-file-pair-btn" class="secondary-btn">
+              <i class="fas fa-plus"></i>
+              Add File Pair
+            </button>
+            <button id="compare-multi-btn" class="primary-btn">
+              <i class="fas fa-code-compare"></i>
+              Compare All Files
+            </button>
+            <button id="generate-report-btn" class="secondary-btn">
+              <i class="fas fa-file-export"></i>
+              Generate Report
+            </button>
+          </div>
+          
+          <div id="file-pairs-container">
+            <div class="file-pair" data-pair-id="0">
+              <div class="file-pair-header">
+                <span class="file-pair-title">File Pair #1</span>
+                <div class="file-pair-actions">
+                  <button class="remove-pair-btn" title="Remove this pair">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="file-inputs">
+                <div class="file-input-group">
+                  <label>File 1 Path:</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-file-code"></i>
+                    <input type="text" class="file1-path-multi" placeholder="Enter path to first file">
+                  </div>
+                </div>
+                <div class="file-input-group">
+                  <label>File 2 Path:</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-file-code"></i>
+                    <input type="text" class="file2-path-multi" placeholder="Enter path to second file">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div class="diff-container">
+      <div id="single-diff-container" class="diff-container">
         <div class="diff-header">
           <div class="file-info">
             <span id="file1-name">No file selected</span>
@@ -165,11 +214,11 @@
                     <span class="filename file2-filename"></span>
                   </div>
                   <button class="toggle-filename-btn" title="Hide filename bar">
-                    <i class="fas fa-chevron-up"></i>
+                    <i class="fas fa-angle-up"></i>
                   </button>
                 </div>
                 <button class="persistent-toggle-btn" title="Show filename bar">
-                  <i class="fas fa-chevron-down"></i>
+                  <i class="fas fa-angle-down"></i>
                 </button>
               </div>
               <div class="diff-view-content">
@@ -180,6 +229,96 @@
             <div class="unified-view hidden">
               <pre id="unified-diff"></pre>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="multi-diff-container" class="diff-container hidden">
+        <div class="multi-diff-header">
+          <h3>Multiple File Comparison</h3>
+          <div class="multi-diff-controls">
+            <button id="multi-side-by-side-btn" class="control-btn active" title="Side by side view">
+              <i class="fas fa-columns"></i>
+            </button>
+            <button id="multi-unified-btn" class="control-btn" title="Unified view">
+              <i class="fas fa-align-justify"></i>
+            </button>
+            <button id="multi-word-wrap-btn" class="control-btn" title="Toggle word wrap">
+              <i class="fas fa-text-width"></i>
+            </button>
+            <button id="multi-line-numbers-btn" class="control-btn active" title="Hide line numbers">
+              <i class="fas fa-list-ol"></i>
+            </button>
+            <button id="multi-collapse-all-btn" class="control-btn" title="Collapse all diffs">
+              <i class="fas fa-compress-alt"></i>
+            </button>
+            <button id="multi-expand-all-btn" class="control-btn" title="Expand all diffs">
+              <i class="fas fa-expand-alt"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="multi-diff-summary">
+          <div class="summary-header">
+            <h4>Summary</h4>
+          </div>
+          <div class="summary-content">
+            <div class="summary-stats">
+              <div class="stat-item">
+                <i class="fas fa-file-code"></i>
+                <span id="total-files-count">0</span> file pairs
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-not-equal"></i>
+                <span id="different-files-count">0</span> with differences
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-equals"></i>
+                <span id="identical-files-count">0</span> identical
+              </div>
+            </div>
+            <div class="summary-totals">
+              <div class="stat-item additions">
+                <i class="fas fa-plus-circle"></i>
+                <span id="total-additions-count">0</span> additions
+              </div>
+              <div class="stat-item deletions">
+                <i class="fas fa-minus-circle"></i>
+                <span id="total-deletions-count">0</span> deletions
+              </div>
+              <div class="stat-item changes">
+                <i class="fas fa-exchange-alt"></i>
+                <span id="total-changes-count">0</span> changes
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="multi-diff-navigation">
+          <div class="navigation-header">
+            <h4>Navigation</h4>
+            <div class="navigation-controls">
+              <button id="show-all-diffs-btn" class="nav-btn active">All</button>
+              <button id="show-changed-diffs-btn" class="nav-btn">Changed</button>
+              <button id="show-identical-diffs-btn" class="nav-btn">Identical</button>
+            </div>
+          </div>
+          <div id="diff-navigation-list" class="navigation-list">
+            <!-- Navigation items will be added here dynamically -->
+          </div>
+        </div>
+        
+        <div id="multi-diff-content-container" class="multi-diff-content-container">
+          <div class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <p>Generating diffs...</p>
+          </div>
+          <div class="empty-state">
+            <i class="fas fa-code-compare"></i>
+            <p>Add file pairs above and click "Compare All Files" to see the differences</p>
+          </div>
+          <div id="multi-diff-results" class="multi-diff-results hidden">
+            <!-- Diff results will be added here dynamically -->
           </div>
         </div>
       </div>
@@ -197,6 +336,14 @@
     </div>
     <button class="toast-close">&times;</button>
   </div>
+  
+  <div id="success-toast" class="toast success-toast hidden">
+    <div class="toast-content">
+      <i class="fas fa-check-circle"></i>
+      <span id="success-message"></span>
+    </div>
+    <button class="toast-close">&times;</button>
+  </div>
 
   <div id="success-toast" class="toast success-toast hidden">
     <div class="toast-content">
@@ -208,5 +355,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
   <script src="script.js"></script>
+  <script src="multi-diff.js"></script>
 </body>
 </html>

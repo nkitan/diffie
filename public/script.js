@@ -73,9 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
   shareBtn.addEventListener('click', shareDiff);
   themeToggle.addEventListener('change', toggleTheme);
   toastClose.addEventListener('click', () => errorToast.classList.add('hidden'));
-  document.querySelector('#success-toast .toast-close').addEventListener('click', () => {
-    document.getElementById('success-toast').classList.add('hidden');
-  });
+  
+  // Add event listener for success toast close button if it exists
+  const successToastClose = document.querySelector('#success-toast .toast-close');
+  if (successToastClose) {
+    successToastClose.addEventListener('click', () => {
+      document.getElementById('success-toast').classList.add('hidden');
+    });
+  }
   
   // Add event listeners for the filename bar toggle buttons
   if (document.querySelector('.toggle-filename-btn')) {
@@ -99,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.querySelector('.toggle-filename-btn');
     if (toggleBtn) {
       const icon = toggleBtn.querySelector('i');
-      icon.className = 'fas fa-chevron-down';
+      icon.className = 'fas fa-angle-down';
       toggleBtn.title = 'Show filename bar';
     }
     
@@ -128,6 +133,21 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           
           const urlParams = new URLSearchParams(window.location.search);
+          
+          // Check for multiple file pairs format
+          const pairsParam = urlParams.getAll('pairs');
+          if (pairsParam && pairsParam.length > 0) {
+            // Only switch tab if tab switching is allowed or both tabs are visible
+            if (tabsVisible === 'both' && data.ui.TABS.ALLOW_SWITCHING !== false) {
+              switchTab('multi-files');
+              
+              // Process the pairs and trigger multi-file comparison
+              processMultiFilePairs(pairsParam);
+            }
+            return;
+          }
+          
+          // Check for single file pair format (backward compatibility)
           const file1 = urlParams.get('file1');
           const file2 = urlParams.get('file2');
           const mode = urlParams.get('mode') || 'server';
@@ -147,6 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           // Default behavior if no tab configuration
           const urlParams = new URLSearchParams(window.location.search);
+          
+          // Check for multiple file pairs format
+          const pairsParam = urlParams.getAll('pairs');
+          if (pairsParam && pairsParam.length > 0) {
+            switchTab('multi-files');
+            processMultiFilePairs(pairsParam);
+            return;
+          }
+          
+          // Check for single file pair format (backward compatibility)
           const file1 = urlParams.get('file1');
           const file2 = urlParams.get('file2');
           const mode = urlParams.get('mode') || 'server';
@@ -166,6 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Fallback to default behavior
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Check for multiple file pairs format
+        const pairsParam = urlParams.getAll('pairs');
+        if (pairsParam && pairsParam.length > 0) {
+          switchTab('multi-files');
+          processMultiFilePairs(pairsParam);
+          return;
+        }
+        
+        // Check for single file pair format (backward compatibility)
         const file1 = urlParams.get('file1');
         const file2 = urlParams.get('file2');
         const mode = urlParams.get('mode') || 'server';
@@ -179,6 +219,80 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       });
+  }
+  
+  // Function to process multiple file pairs from URL parameters
+  function processMultiFilePairs(pairsParam) {
+    // Make sure the multi-files tab is initialized
+    const multiFilesTab = document.getElementById('multi-files-tab');
+    const filePairsContainer = document.getElementById('file-pairs-container');
+    
+    // Clear existing file pairs
+    filePairsContainer.innerHTML = '';
+    
+    // Process each pair parameter
+    pairsParam.forEach((pairStr, index) => {
+      // Parse the pair (format: file1.txt,file2.txt)
+      const [file1, file2] = pairStr.split(',').map(path => path.trim());
+      
+      if (file1 && file2) {
+        // Create a new file pair element
+        const filePairEl = document.createElement('div');
+        filePairEl.className = 'file-pair';
+        filePairEl.dataset.pairId = index;
+        
+        filePairEl.innerHTML = `
+          <div class="file-pair-header">
+            <span class="file-pair-title">File Pair #${index + 1}</span>
+            <div class="file-pair-actions">
+              <button class="remove-pair-btn" title="Remove this pair">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <div class="file-inputs">
+            <div class="file-input-group">
+              <label>File 1 Path:</label>
+              <div class="input-with-icon">
+                <i class="fas fa-file-code"></i>
+                <input type="text" class="file1-path-multi" placeholder="Enter path to first file" value="${file1}">
+              </div>
+            </div>
+            <div class="file-input-group">
+              <label>File 2 Path:</label>
+              <div class="input-with-icon">
+                <i class="fas fa-file-code"></i>
+                <input type="text" class="file2-path-multi" placeholder="Enter path to second file" value="${file2}">
+              </div>
+            </div>
+          </div>
+        `;
+        
+        filePairsContainer.appendChild(filePairEl);
+      }
+    });
+    
+    // Trigger the compare function if we have at least one valid pair
+    if (filePairsContainer.children.length > 0) {
+      // We need to wait a bit for the event listeners to be attached
+      setTimeout(() => {
+        // Make sure the multi-diff.js has initialized the file pairs
+        if (typeof initializeFilePairs === 'function') {
+          initializeFilePairs();
+        } else {
+          // If the function isn't available directly, try to access it through window
+          if (window.initializeFilePairs) {
+            window.initializeFilePairs();
+          }
+        }
+        
+        // Find and click the compare button
+        const compareMultiBtn = document.getElementById('compare-multi-btn');
+        if (compareMultiBtn) {
+          compareMultiBtn.click();
+        }
+      }, 200); // Increased timeout to ensure everything is loaded
+    }
   }
 
   function switchTab(tabId) {
@@ -199,6 +313,18 @@ document.addEventListener('DOMContentLoaded', () => {
         content.classList.add('hidden');
       }
     });
+    
+    // Show/hide the appropriate diff container based on the tab
+    const singleDiffContainer = document.getElementById('single-diff-container');
+    const multiDiffContainer = document.getElementById('multi-diff-container');
+    
+    if (tabId === 'multi-files') {
+      if (singleDiffContainer) singleDiffContainer.classList.add('hidden');
+      if (multiDiffContainer) multiDiffContainer.classList.remove('hidden');
+    } else {
+      if (singleDiffContainer) singleDiffContainer.classList.remove('hidden');
+      if (multiDiffContainer) multiDiffContainer.classList.add('hidden');
+    }
   }
   
   function updateFileName(fileInput, fileNameElement) {
@@ -308,7 +434,20 @@ document.addEventListener('DOMContentLoaded', () => {
           noChangesState.classList.add('hidden');
           diffView.classList.add('hidden');
           unifiedView.classList.add('hidden');
-          showError(error.message);
+          
+          // Log the actual error to console
+          console.error('Error comparing files:', error.message);
+          
+          // Show a user-friendly message
+          let errorMessage = 'Failed to compare files. Please try again.';
+          
+          if (error.message.includes('not found') || error.message.includes('no such file')) {
+            errorMessage = 'One or more files could not be found. Please check that the file paths are correct.';
+          } else if (error.message.includes('permission denied')) {
+            errorMessage = 'Permission denied when accessing files. Please check file permissions.';
+          }
+          
+          showError(errorMessage);
         }
       });
   }
@@ -576,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const toggleBtn = document.querySelector('.toggle-filename-btn');
           if (toggleBtn) {
             const icon = toggleBtn.querySelector('i');
-            icon.className = 'fas fa-chevron-down';
+            icon.className = 'fas fa-angle-down';
             toggleBtn.title = 'Show filename bar';
           }
         }
@@ -770,6 +909,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000);
   }
   
+  // Make showError available globally for multi-diff.js
+  window.showError = showError;
+  
   function showSuccess(message) {
     const successMessage = document.getElementById('success-message');
     const successToast = document.getElementById('success-toast');
@@ -783,6 +925,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
   
+  // Make showSuccess available globally for multi-diff.js
+  window.showSuccess = showSuccess;
+  
+  // Make fileUrlConfig available globally for multi-diff.js
+  window.fileUrlConfig = fileUrlConfig;
+  
   function toggleFilenameBar() {
     if (filenameBar) {
       filenameBar.classList.toggle('collapsed');
@@ -792,10 +940,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (toggleBtn) {
         const icon = toggleBtn.querySelector('i');
         if (filenameBar.classList.contains('collapsed')) {
-          icon.className = 'fas fa-chevron-down';
+          icon.className = 'fas fa-angle-down';
           toggleBtn.title = 'Show filename bar';
         } else {
-          icon.className = 'fas fa-chevron-up';
+          icon.className = 'fas fa-angle-up';
           toggleBtn.title = 'Hide filename bar';
         }
       }
@@ -867,6 +1015,12 @@ document.addEventListener('DOMContentLoaded', () => {
               prefix: data.ui.FILE_URLS.PREFIX || '',
               useAbsolutePaths: data.ui.FILE_URLS.USE_ABSOLUTE_PATHS === true
             };
+            
+            // Update the global fileUrlConfig
+            window.fileUrlConfig = fileUrlConfig;
+            
+            // Update the global fileUrlConfig
+            window.fileUrlConfig = fileUrlConfig;
             
             // Make filenames clickable if enabled
             if (fileUrlConfig.enabled) {

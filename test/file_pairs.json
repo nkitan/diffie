@@ -1,0 +1,17 @@
+[
+  {
+    "file1": "sample1.txt",
+    "file2": "sample2.txt",
+    "index": 0
+  },
+  {
+    "file1": "sample1.txt",
+    "file2": "lorem/ipsum.txt",
+    "index": 1
+  },
+  {
+    "file1": "sample2.txt",
+    "file2": "sample2.txt",
+    "index": 2
+  }
+]

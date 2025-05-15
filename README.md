@@ -62,26 +62,51 @@ Note: When comparing local files, the files are processed entirely in your brows
 
 ### Via URL Parameters
 
-You can directly link to a comparison by using URL parameters:
+#### Single File Pair
+
+You can directly link to a comparison of a single file pair by using URL parameters:
 
 ```
 http://localhost:3000/?file1=relative/path/to/first/file.txt&file2=relative/path/to/second/file.txt
 ```
 
-The paths are relative to the configured base path on the server.
+#### Multiple File Pairs
+
+You can also compare multiple file pairs at once using the `pairs` parameter:
+
+```
+http://localhost:3000/?pairs=file1.txt,file2.txt&pairs=file3.txt,file4.txt&pairs=file5.txt,file6.txt
+```
+
+Each `pairs` parameter contains two file paths separated by a comma. You can add as many `pairs` parameters as needed.
+
+All file paths are relative to the configured base path on the server.
 
 ## Sample Files
 
-The repository includes two sample files for testing:
+The repository includes sample files for testing:
 
 - `sample1.txt`
 - `sample2.txt`
+- `lorem/ipsum.txt`
 
-You can compare these by entering their paths in the web interface or using the URL:
+### Single Pair Example
+
+You can compare a single pair by entering their paths in the web interface or using the URL:
 
 ```
 http://localhost:3000/?file1=sample1.txt&file2=sample2.txt
 ```
+
+### Multiple Pairs Example
+
+You can compare multiple pairs at once using the URL:
+
+```
+http://localhost:3000/?pairs=sample1.txt,sample2.txt&pairs=sample2.txt,lorem/ipsum.txt
+```
+
+For more examples, see the `test_files/multi-diff-examples.html` file.
 
 ### Environment Variables
 
