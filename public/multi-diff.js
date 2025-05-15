@@ -528,7 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
       resultItem.className = 'diff-result-item';
       resultItem.dataset.resultIndex = resultIndex;
       resultItem.dataset.status = identical ? 'identical' : 'different';
-      
+
+      // Add a resizable wrapper for each diff result content
       resultItem.innerHTML = `
         <div class="diff-result-header">
           <div class="diff-result-title">
@@ -567,30 +568,32 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
           </div>
         </div>
-        <div class="diff-result-content">
-          ${identical ? `
-            <div class="diff-content side-by-side">
-              <div class="diff-view-content">
-                <div class="identical-files-container">
-                  <div class="no-changes-state">
-                    <i class="fas fa-equals"></i>
-                    <p>Files are identical. No differences found.</p>
+        <div class="diff-resize-wrapper">
+          <div class="diff-result-content">
+            ${identical ? `
+              <div class="diff-content side-by-side">
+                <div class="diff-view-content">
+                  <div class="identical-files-container">
+                    <div class="no-changes-state">
+                      <i class="fas fa-equals"></i>
+                      <p>Files are identical. No differences found.</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ` : `
-            <div class="diff-content ${currentViewMode}">
-              ${currentViewMode === 'side-by-side' ? `
-                <div class="diff-view-content">
-                  <div class="file1-content"></div>
-                  <div class="file2-content"></div>
-                </div>
-              ` : `
-                <pre class="unified-diff"></pre>
-              `}
-            </div>
-          `}
+            ` : `
+              <div class="diff-content ${currentViewMode}">
+                ${currentViewMode === 'side-by-side' ? `
+                  <div class="diff-view-content">
+                    <div class="file1-content"></div>
+                    <div class="file2-content"></div>
+                  </div>
+                ` : `
+                  <pre class="unified-diff"></pre>
+                `}
+              </div>
+            `}
+          </div>
         </div>
       `;
       
@@ -600,8 +603,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const toggleBtn = resultItem.querySelector('.toggle-diff-btn');
       toggleBtn.addEventListener('click', () => {
         const contentEl = resultItem.querySelector('.diff-result-content');
+        const resizeWrapper = resultItem.querySelector('.diff-resize-wrapper');
         contentEl.classList.toggle('collapsed');
-        
+        if (contentEl.classList.contains('collapsed')) {
+          // Shrink the resizable window to 0 when collapsed
+          if (resizeWrapper) {
+            resizeWrapper.style.height = '0px';
+            resizeWrapper.style.minHeight = '0px';
+            resizeWrapper.style.overflow = 'hidden';
+          }
+        } else {
+          // Remove explicit height/minHeight to allow resizing
+          if (resizeWrapper) {
+            resizeWrapper.style.height = '';
+            resizeWrapper.style.minHeight = '';
+            resizeWrapper.style.overflow = '';
+          }
+        }
         if (contentEl.classList.contains('collapsed')) {
           toggleBtn.innerHTML = '<i class="fas fa-angle-down"></i>';
           toggleBtn.title = 'Expand';
@@ -1051,19 +1069,31 @@ document.addEventListener('DOMContentLoaded', () => {
   function collapseAllDiffs() {
     document.querySelectorAll('.diff-result-content').forEach(el => {
       el.classList.add('collapsed');
+      // Also shrink the resizable wrapper
+      const resizeWrapper = el.closest('.diff-resize-wrapper');
+      if (resizeWrapper) {
+        resizeWrapper.style.height = '0px';
+        resizeWrapper.style.minHeight = '0px';
+        resizeWrapper.style.overflow = 'hidden';
+      }
     });
-    
     document.querySelectorAll('.toggle-diff-btn').forEach(btn => {
       btn.innerHTML = '<i class="fas fa-angle-down"></i>';
       btn.title = 'Expand';
     });
   }
-  
+
   function expandAllDiffs() {
     document.querySelectorAll('.diff-result-content').forEach(el => {
       el.classList.remove('collapsed');
+      // Restore the resizable wrapper
+      const resizeWrapper = el.closest('.diff-resize-wrapper');
+      if (resizeWrapper) {
+        resizeWrapper.style.height = '';
+        resizeWrapper.style.minHeight = '';
+        resizeWrapper.style.overflow = '';
+      }
     });
-    
     document.querySelectorAll('.toggle-diff-btn').forEach(btn => {
       btn.innerHTML = '<i class="fas fa-angle-up"></i>';
       btn.title = 'Collapse';

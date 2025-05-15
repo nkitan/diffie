@@ -901,11 +901,9 @@ main {
   transition: all 0.4s ease;
   display: flex;
   flex-direction: column;
-  min-height: 600px;
 }
 
 #diff-content {
-  min-height: 600px;
   flex: 1;
   font-family: var(--font-mono);
   font-size: 0.95rem;
@@ -1809,6 +1807,166 @@ footer::before {
   max-height: 0;
 }
 
+/* Resizable wrapper for each diff pair (multi-diff) */
+.diff-resize-wrapper {
+  resize: vertical;
+  overflow: auto;
+  min-height: 180px;
+  max-height: 80vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Remove vertical resizing from individual diff containers, keep only .diff-resize-wrapper resizable */
+.diff-result-content,
+.diff-content-container,
+.diff-view-content,
+.file1-content,
+.file2-content,
+.multi-diff-content-container,
+#diff-content,
+#unified-diff,
+.multi-diff-results {
+  resize: none !important;
+  min-height: unset;
+  max-height: unset;
+}
+
+/* Custom scrollbars for all scrollable diff areas */
+.diff-result-content,
+.diff-content-container,
+.diff-view-content,
+.file1-content,
+.file2-content,
+.multi-diff-content-container,
+#diff-content,
+#unified-diff,
+.multi-diff-results,
+::-webkit-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+/* Webkit browsers */
+.diff-result-content::-webkit-scrollbar,
+.diff-content-container::-webkit-scrollbar,
+.diff-view-content::-webkit-scrollbar,
+.file1-content::-webkit-scrollbar,
+.file2-content::-webkit-scrollbar,
+.multi-diff-content-container::-webkit-scrollbar,
+#diff-content::-webkit-scrollbar,
+#unified-diff::-webkit-scrollbar,
+.multi-diff-results::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: var(--card-bg);
+  border-radius: 8px;
+}
+
+.diff-result-content::-webkit-scrollbar-thumb,
+.diff-content-container::-webkit-scrollbar-thumb,
+.diff-view-content::-webkit-scrollbar-thumb,
+.file1-content::-webkit-scrollbar-thumb,
+.file2-content::-webkit-scrollbar-thumb,
+.multi-diff-content-container::-webkit-scrollbar-thumb,
+#diff-content::-webkit-scrollbar-thumb,
+#unified-diff::-webkit-scrollbar-thumb,
+.multi-diff-results::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  border-radius: 8px;
+  min-height: 40px;
+  box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.15);
+}
+
+.diff-result-content::-webkit-scrollbar-thumb:hover,
+.diff-content-container::-webkit-scrollbar-thumb:hover,
+.diff-view-content::-webkit-scrollbar-thumb:hover,
+.file1-content::-webkit-scrollbar-thumb:hover,
+.file2-content::-webkit-scrollbar-thumb:hover,
+.multi-diff-content-container::-webkit-scrollbar-thumb:hover,
+#diff-content::-webkit-scrollbar-thumb:hover,
+#unified-diff::-webkit-scrollbar-thumb:hover,
+.multi-diff-results::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+.diff-result-content::-webkit-scrollbar-corner,
+.diff-content-container::-webkit-scrollbar-corner,
+.diff-view-content::-webkit-scrollbar-corner,
+.file1-content::-webkit-scrollbar-corner,
+.file2-content::-webkit-scrollbar-corner,
+.multi-diff-content-container::-webkit-scrollbar-corner,
+#diff-content::-webkit-scrollbar-corner,
+#unified-diff::-webkit-scrollbar-corner,
+.multi-diff-results::-webkit-scrollbar-corner {
+  background: var(--card-bg);
+}
+
+/* Firefox */
+.diff-result-content,
+.diff-content-container,
+.diff-view-content,
+.file1-content,
+.file2-content,
+.multi-diff-content-container,
+#diff-content,
+#unified-diff,
+.multi-diff-results {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--card-bg);
+}
+
+/* Dark theme adjustments */
+.dark-theme .diff-result-content,
+.dark-theme .diff-content-container,
+.dark-theme .diff-view-content,
+.dark-theme .file1-content,
+.dark-theme .file2-content,
+.dark-theme .multi-diff-content-container,
+.dark-theme #diff-content,
+.dark-theme #unified-diff,
+.dark-theme .multi-diff-results {
+  scrollbar-color: var(--primary-color) var(--bg-color);
+}
+
+.dark-theme .diff-result-content::-webkit-scrollbar,
+.dark-theme .diff-content-container::-webkit-scrollbar,
+.dark-theme .diff-view-content::-webkit-scrollbar,
+.dark-theme .file1-content::-webkit-scrollbar,
+.dark-theme .file2-content::-webkit-scrollbar,
+.dark-theme .multi-diff-content-container::-webkit-scrollbar,
+.dark-theme #diff-content::-webkit-scrollbar,
+.dark-theme #unified-diff::-webkit-scrollbar,
+.dark-theme .multi-diff-results::-webkit-scrollbar {
+  background: var(--bg-color);
+}
+
+.dark-theme .diff-result-content::-webkit-scrollbar-thumb,
+.dark-theme .diff-content-container::-webkit-scrollbar-thumb,
+.dark-theme .diff-view-content::-webkit-scrollbar-thumb,
+.dark-theme .file1-content::-webkit-scrollbar-thumb,
+.dark-theme .file2-content::-webkit-scrollbar-thumb,
+.dark-theme .multi-diff-content-container::-webkit-scrollbar-thumb,
+.dark-theme #diff-content::-webkit-scrollbar-thumb,
+.dark-theme #unified-diff::-webkit-scrollbar-thumb,
+.dark-theme .multi-diff-results::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+}
+
+.dark-theme .diff-result-content::-webkit-scrollbar-corner,
+.dark-theme .diff-content-container::-webkit-scrollbar-corner,
+.dark-theme .diff-view-content::-webkit-scrollbar-corner,
+.dark-theme .file1-content::-webkit-scrollbar-corner,
+.dark-theme .file2-content::-webkit-scrollbar-corner,
+.dark-theme .multi-diff-content-container::-webkit-scrollbar-corner,
+.dark-theme #diff-content::-webkit-scrollbar-corner,
+.dark-theme #unified-diff::-webkit-scrollbar-corner,
+.dark-theme .multi-diff-results::-webkit-scrollbar-corner {
+  background: var(--bg-color);
+}
+
+/* End custom scrollbars */
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .file-inputs {
@@ -1867,5 +2025,9 @@ footer::before {
   .summary-stats, .summary-totals {
     flex-direction: column;
     gap: 1rem;
+  }
+  
+  .multi-diff-content-container {
+    padding: 1rem;
   }
 }
