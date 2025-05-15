@@ -380,6 +380,74 @@
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.3);
 }
 
+/* Editor theme - Subtle, professional, text editor inspired */
+.editor-theme {
+  --primary-color: #2979ff;
+  --primary-color-rgb: 41, 121, 255;
+  --primary-hover: #1565c0;
+  --bg-color: #f7f8fa;
+  --bg-color-rgb: 247, 248, 250;
+  --text-color: #23272e;
+  --secondary-text: #6c7680;
+  --border-color: #e0e3e8;
+  --border-color-rgb: 224, 227, 232;
+  --card-bg: #ffffff;
+  --card-bg-rgb: 255, 255, 255;
+  --addition-color: #e3f6e8;
+  --addition-color-rgb: 227, 246, 232;
+  --addition-text: #22863a;
+  --deletion-color: #fbeaea;
+  --deletion-color-rgb: 251, 234, 234;
+  --deletion-text: #d73a49;
+  --change-color: #f7f3e7;
+  --change-color-rgb: 247, 243, 231;
+  --change-text: #b08800;
+  --line-number-bg: #f3f4f6;
+  --line-number-text: #b0b7c3;
+  --shadow-sm: 0 1px 2px rgba(41, 121, 255, 0.04);
+  --shadow-md: 0 3px 6px rgba(41, 121, 255, 0.08);
+  --shadow-lg: 0 8px 24px rgba(41, 121, 255, 0.10);
+  --font-mono: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
+  --font-sans: 'Poppins', 'Segoe UI', 'Inter', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* Editor dark theme - improved for consistency with other dark themes */
+.editor-dark-theme {
+  --primary-color: #5c7aff;
+  --primary-color-rgb: 92, 122, 255;
+  --primary-hover: #3b5ad6;
+  --bg-color: #1a1d23;
+  --bg-color-rgb: 26, 29, 35;
+  --text-color: #e3eaf2;
+  --secondary-text: #8b98b1;
+  --border-color: #23262c;
+  --border-color-rgb: 35, 38, 44;
+  --card-bg: #232a33;
+  --card-bg-rgb: 35, 42, 51;
+  --addition-color: #1e2b22;
+  --addition-color-rgb: 30, 43, 34;
+  --addition-text: #7ee787;
+  --deletion-color: #2d2323;
+  --deletion-color-rgb: 45, 35, 35;
+  --deletion-text: #ffb4b4;
+  --change-color: #2a2820;
+  --change-color-rgb: 42, 40, 32;
+  --change-text: #ffe082;
+  --line-number-bg: #232a33;
+  --line-number-text: #6c7680;
+  --shadow-sm: 0 1px 2px rgba(92, 122, 255, 0.08);
+  --shadow-md: 0 3px 6px rgba(92, 122, 255, 0.12);
+  --shadow-lg: 0 8px 24px rgba(92, 122, 255, 0.16);
+  --font-mono: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
+  --font-sans: 'Poppins', 'Segoe UI', 'Inter', sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
 /* Theme selector styles */
 .theme-selector {
   position: relative;
@@ -560,4 +628,12 @@
 
 .obsidian-dark-preview {
   background: linear-gradient(135deg, #7e7e7e, #aaaaaa);
+}
+
+.editor-light-preview {
+  background: linear-gradient(135deg, #f7f8fa 60%, #2979ff 100%);
+}
+
+.editor-dark-preview {
+  background: linear-gradient(135deg, #1a1d23 60%, #5c7aff 100%);
 }
