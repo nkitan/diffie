@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View File – Diffie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="themes.css">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Navbar (copied from index.html) -->
+    <header>
+      <div class="logo">
+        <img src="favicon.ico" alt="Diffie logo" style="width: 1.7em; height: 1.7em; vertical-align: middle; margin-right: 0.5em;" />
+      </div>
+      <div class="theme-toggle">
+        <i class="fas fa-sun"></i>
+        <div class="toggle-switch">
+          <input type="checkbox" id="theme-toggle-checkbox">
+          <label for="theme-toggle-checkbox"></label>
+        </div>
+        <i class="fas fa-moon"></i>
+        <div class="theme-selector">
+          <button id="theme-selector-btn" class="control-btn" title="Change theme">
+            <i class="fas fa-palette"></i>
+          </button>
+          <div id="theme-selector-dropdown" class="theme-selector-dropdown">
+            <div class="theme-dropdown-header">
+              <i class="fas fa-palette"></i>
+              <span>Select Theme</span>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">Default</div>
+              <div class="theme-option" data-theme="default" data-dark="false">
+                <div class="theme-color-preview default-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="default" data-dark="true">
+                <div class="theme-color-preview default-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">Cloudflare</div>
+              <div class="theme-option" data-theme="cloudflare" data-dark="false">
+                <div class="theme-color-preview cloudflare-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="cloudflare" data-dark="true">
+                <div class="theme-color-preview cloudflare-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">GitLab</div>
+              <div class="theme-option" data-theme="gitlab" data-dark="false">
+                <div class="theme-color-preview gitlab-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="gitlab" data-dark="true">
+                <div class="theme-color-preview gitlab-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">GitHub</div>
+              <div class="theme-option" data-theme="github" data-dark="false">
+                <div class="theme-color-preview github-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="github" data-dark="true">
+                <div class="theme-color-preview github-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">VS Code</div>
+              <div class="theme-option" data-theme="vscode" data-dark="false">
+                <div class="theme-color-preview vscode-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="vscode" data-dark="true">
+                <div class="theme-color-preview vscode-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">Material</div>
+              <div class="theme-option" data-theme="material" data-dark="false">
+                <div class="theme-color-preview material-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="material" data-dark="true">
+                <div class="theme-color-preview material-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">Obsidian</div>
+              <div class="theme-option" data-theme="obsidian" data-dark="false">
+                <div class="theme-color-preview obsidian-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="obsidian" data-dark="true">
+                <div class="theme-color-preview obsidian-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+            <div class="theme-category">
+              <div class="theme-category-label">Editor</div>
+              <div class="theme-option" data-theme="editor" data-dark="false">
+                <div class="theme-color-preview editor-light-preview"></div>
+                <span>Light</span>
+              </div>
+              <div class="theme-option" data-theme="editor" data-dark="true">
+                <div class="theme-color-preview editor-dark-preview"></div>
+                <span>Dark</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="tabs">
+        <button class="tab-btn active" id="file-view-heading" data-tab="view-file"></button>
+      </div>
+      <div class="tab-content" id="view-file-tab">
+        <div class="file-view-container">
+          <div class="filename-bar">
+            <span id="file-view-filename"></span>
+          </div>
+          <div class="ide-file-viewer">
+            <div class="ide-gutter" id="ide-gutter"></div>
+            <pre class="ide-code" id="ide-code"></pre>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <p id="app-footer">Diffie &copy; 2025 | A beautiful file diff viewer | Ankit Das</p>
+    </footer>
+  </div>
+  <script src="view-file.js"></script>
+</body>
+</html>

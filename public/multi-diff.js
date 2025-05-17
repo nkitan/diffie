@@ -689,34 +689,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderSideBySideDiff(diffText, resultItem) {
     const file1Content = resultItem.querySelector('.file1-content');
     const file2Content = resultItem.querySelector('.file2-content');
-    
     if (!file1Content || !file2Content) return;
-    
-    // Clear previous content
     file1Content.innerHTML = '';
     file2Content.innerHTML = '';
-    
-    // Parse the unified diff format
     const lines = diffText.split('\n');
-    
     let inHeader = true;
     let file1LineNumber = 0;
     let file2LineNumber = 0;
     let currentHunk = 0;
     let skipFirstHunk = false;
-    
     // Check if the first hunk is just a filename diff (we want to skip it)
-    // Look for the pattern where there's a hunk header followed by just two lines (one - and one +)
-    // that represent the filenames
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].startsWith('@@')) {
-        // Found first hunk header
         const nextLine = lines[i+1] || '';
         const nextNextLine = lines[i+2] || '';
         const nextNextNextLine = lines[i+3] || '';
-        
-        // If the next two lines are just - and + and then another @@ or end of file,
-        // this is likely just a filename diff
         if (nextLine.startsWith('-') && nextNextLine.startsWith('+') && 
             (nextNextNextLine.startsWith('@@') || nextNextNextLine === '')) {
           skipFirstHunk = true;
@@ -724,58 +711,72 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
       }
     }
-    
+    // Alignment buffers
+    let leftBuffer = [];
+    let rightBuffer = [];
+    function flushBuffers() {
+      while (leftBuffer.length < rightBuffer.length) leftBuffer.push({ type: 'empty', lineNumber: '', content: '' });
+      while (rightBuffer.length < leftBuffer.length) rightBuffer.push({ type: 'empty', lineNumber: '', content: '' });
+      for (let i = 0; i < leftBuffer.length; i++) {
+        const l = leftBuffer[i];
+        const r = rightBuffer[i];
+        if (l.type === 'empty') {
+          appendLine(file1Content, '', '', 'empty');
+        } else {
+          appendLine(file1Content, l.lineNumber, l.content, l.type);
+        }
+        if (r.type === 'empty') {
+          appendLine(file2Content, '', '', 'empty');
+        } else {
+          appendLine(file2Content, r.lineNumber, r.content, r.type);
+        }
+      }
+      leftBuffer = [];
+      rightBuffer = [];
+    }
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
-      // Skip header lines
       if (inHeader && (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff') || line.startsWith('index'))) {
         continue;
       }
-      
-      // Check for hunk header
       if (line.startsWith('@@')) {
         inHeader = false;
         currentHunk++;
-        
-        // Skip the first hunk if it's just a filename diff
         if (skipFirstHunk && currentHunk === 1) {
-          // Skip until the next hunk header or end of file
-          while (i < lines.length && !lines[i].startsWith('@@')) {
-            i++;
-          }
-          i--; // Adjust for the loop increment
+          while (i < lines.length && !lines[i].startsWith('@@')) { i++; }
+          i--;
           continue;
         }
-        
-        // Extract line numbers from hunk header
         const match = line.match(/@@ -(\d+),\d+ \+(\d+),\d+ @@/);
         if (match) {
           file1LineNumber = parseInt(match[1]) - 1;
           file2LineNumber = parseInt(match[2]) - 1;
         }
+        flushBuffers();
         continue;
       }
-      
       inHeader = false;
-      
-      // Process diff lines
       if (line.startsWith('-')) {
-        // Deletion - only in file1
         file1LineNumber++;
-        appendLine(file1Content, file1LineNumber, line.substring(1), 'deletion');
+        leftBuffer.push({ type: 'deletion', lineNumber: file1LineNumber, content: line.substring(1) });
+        rightBuffer.push({ type: 'empty', lineNumber: '', content: '' });
       } else if (line.startsWith('+')) {
-        // Addition - only in file2
         file2LineNumber++;
-        appendLine(file2Content, file2LineNumber, line.substring(1), 'addition');
+        leftBuffer.push({ type: 'empty', lineNumber: '', content: '' });
+        rightBuffer.push({ type: 'addition', lineNumber: file2LineNumber, content: line.substring(1) });
       } else if (line.startsWith(' ')) {
-        // Context - in both files
         file1LineNumber++;
         file2LineNumber++;
-        appendLine(file1Content, file1LineNumber, line.substring(1), 'context');
-        appendLine(file2Content, file2LineNumber, line.substring(1), 'context');
+        leftBuffer.push({ type: 'context', lineNumber: file1LineNumber, content: line.substring(1) });
+        rightBuffer.push({ type: 'context', lineNumber: file2LineNumber, content: line.substring(1) });
+      }
+      // When both buffers have a real line, flush
+      if (leftBuffer.length > 0 && rightBuffer.length > 0 &&
+          (leftBuffer[leftBuffer.length-1].type !== 'empty' && rightBuffer[rightBuffer.length-1].type !== 'empty')) {
+        flushBuffers();
       }
     }
+    flushBuffers();
   }
   
   function renderUnifiedDiff(diffText, resultItem) {

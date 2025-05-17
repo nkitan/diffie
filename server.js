@@ -18,6 +18,21 @@ app.use(express.json());
 // Serve static files from the public directory
 app.use(express.static('public'));
 
+// Serve a single file as plain text (for view-file.html)
+app.get('/api/file', (req, res) => {
+  const relPath = req.query.file;
+  if (!relPath) return res.status(400).send('No file specified');
+  const absPath = path.resolve(config.BASE_PATH, relPath);
+  // Security: only allow files under BASE_PATH
+  if (!absPath.startsWith(path.resolve(config.BASE_PATH))) {
+    return res.status(403).send('Access denied');
+  }
+  fs.readFile(absPath, 'utf8', (err, data) => {
+    if (err) return res.status(404).send('File not found');
+    res.type('text/plain').send(data);
+  });
+});
+
 // API endpoint to get file content
 app.get('/api/file', (req, res) => {
   const filePath = req.query.path;

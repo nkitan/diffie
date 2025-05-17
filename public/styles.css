@@ -1169,6 +1169,14 @@ main {
   border-left: 3px solid transparent;
 }
 
+.line.empty {
+  background: transparent !important;
+  color: transparent !important;
+  min-height: 1.6em;
+  border: none !important;
+  pointer-events: none;
+}
+
 .unified-view {
   padding: 1.5rem;
   background-color: rgba(var(--bg-color-rgb), 1);
@@ -1913,7 +1921,7 @@ footer::before {
 #unified-diff,
 .multi-diff-results {
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) var(--card-bg);
+  scrollbar-color: var(--primary-color) var (--card-bg);
 }
 
 /* Dark theme adjustments */
@@ -2030,4 +2038,228 @@ footer::before {
   .multi-diff-content-container {
     padding: 1rem;
   }
+}
+
+/* File view page styles */
+.file-view-container {
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+  min-height: 400px;
+  max-height: 80vh;
+  background: var(--panel-bg);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+  overflow: hidden;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.file-view-content {
+  flex: 1 1 auto;
+  min-height: 350px;
+  max-height: 100%;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  padding: 2rem 2.5rem;
+  background: var(--editor-bg, #f8fafc);
+  color: var(--editor-fg, #22292f);
+  border: none;
+  border-radius: 0 0 10px 10px;
+  overflow: auto;
+  font-family: var(--mono-font, 'Fira Mono', 'Menlo', 'Consolas', monospace);
+  box-sizing: border-box;
+}
+
+.filename-bar {
+  background: var(--panel-header-bg, #f1f5f9);
+  color: var(--panel-header-fg, #334155);
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.7rem 2.5rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px 10px 0 0;
+  letter-spacing: 0.01em;
+  overflow-x: auto;
+}
+
+@media (max-width: 700px) {
+  .file-view-container {
+    max-width: 100vw;
+    height: 60vh;
+    min-height: 200px;
+  }
+  .file-view-content {
+    padding: 1rem 0.5rem;
+    font-size: 0.98rem;
+  }
+  .filename-bar {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.97rem;
+  }
+}
+
+.dark-theme .file-view-content,
+.cloudflare-dark-theme .file-view-content,
+.gitlab-dark-theme .file-view-content,
+.github-dark-theme .file-view-content,
+.vscode-dark-theme .file-view-content,
+.material-dark-theme .file-view-content,
+.obsidian-dark-theme .file-view-content,
+.editor-dark-theme .file-view-content {
+  background: var(--editor-bg-dark, #181f2a);
+  color: var(--editor-fg-dark, #e2e8f0);
+}
+
+.dark-theme .filename-bar,
+.cloudflare-dark-theme .filename-bar,
+.gitlab-dark-theme .filename-bar,
+.github-dark-theme .filename-bar,
+.vscode-dark-theme .filename-bar,
+.material-dark-theme .filename-bar,
+.obsidian-dark-theme .filename-bar,
+.editor-dark-theme .filename-bar {
+  background: var(--panel-header-bg-dark, #232b3a);
+  color: var(--panel-header-fg-dark, #e2e8f0);
+  border-bottom: 1px solid var(--border-color-dark, #334155);
+}
+
+.logo .fas,
+.theme-toggle .fas,
+.theme-selector .fas {
+  color: var(--icon-color, #334155) !important;
+  display: inline-block;
+  font-family: 'FontAwesome', 'Font Awesome 5 Free', 'Font Awesome 6 Free', Arial, sans-serif !important;
+  font-weight: 900 !important;
+  font-style: normal;
+  font-display: block;
+  background: none !important;
+  text-shadow: none !important;
+  vertical-align: middle;
+  font-size: 1.2em;
+}
+
+.dark-theme .logo .fas,
+.dark-theme .theme-toggle .fas,
+.dark-theme .theme-selector .fas,
+.cloudflare-dark-theme .logo .fas,
+.cloudflare-dark-theme .theme-toggle .fas,
+.cloudflare-dark-theme .theme-selector .fas,
+.gitlab-dark-theme .logo .fas,
+.gitlab-dark-theme .theme-toggle .fas,
+.gitlab-dark-theme .theme-selector .fas,
+.github-dark-theme .logo .fas,
+.github-dark-theme .theme-toggle .fas,
+.github-dark-theme .theme-selector .fas,
+.vscode-dark-theme .logo .fas,
+.vscode-dark-theme .theme-toggle .fas,
+.vscode-dark-theme .theme-selector .fas,
+.material-dark-theme .logo .fas,
+.material-dark-theme .theme-toggle .fas,
+.material-dark-theme .theme-selector .fas,
+.obsidian-dark-theme .logo .fas,
+.obsidian-dark-theme .theme-toggle .fas,
+.obsidian-dark-theme .theme-selector .fas,
+.editor-dark-theme .logo .fas,
+.editor-dark-theme .theme-toggle .fas,
+.editor-dark-theme .theme-selector .fas {
+  color: var(--icon-color-dark, #e2e8f0) !important;
+}
+
+.ide-file-viewer {
+  display: flex;
+  background: var(--editor-bg, #f8fafc);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+  overflow: auto;
+  height: 90vh;
+  min-height: 900px;
+  max-height: 100vh;
+  font-family: var(--mono-font, 'Fira Mono', 'Menlo', 'Consolas', monospace);
+  font-size: 1.1rem;
+}
+.ide-gutter {
+  background: var(--gutter-bg, #f1f5f9);
+  color: var(--gutter-fg, #64748b);
+  text-align: right;
+  user-select: none;
+  padding: 2rem 0.7rem 2rem 1.2rem;
+  border-right: 1px solid var(--border-color, #e2e8f0);
+  min-width: 3.2em;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+.ide-code {
+  flex: 1 1 auto;
+  padding: 2rem 2.5rem;
+  background: transparent;
+  color: var(--editor-fg, #22292f);
+  border: none;
+  border-radius: 0 0 10px 0;
+  overflow-x: auto;
+  white-space: pre;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+.dark-theme .ide-file-viewer,
+.cloudflare-dark-theme .ide-file-viewer,
+.gitlab-dark-theme .ide-file-viewer,
+.github-dark-theme .ide-file-viewer,
+.vscode-dark-theme .ide-file-viewer,
+.material-dark-theme .ide-file-viewer,
+.obsidian-dark-theme .ide-file-viewer,
+.editor-dark-theme .ide-file-viewer {
+  background: var(--editor-bg-dark, #181f2a);
+}
+.dark-theme .ide-gutter,
+.cloudflare-dark-theme .ide-gutter,
+.gitlab-dark-theme .ide-gutter,
+.github-dark-theme .ide-gutter,
+.vscode-dark-theme .ide-gutter,
+.material-dark-theme .ide-gutter,
+.obsidian-dark-theme .ide-gutter,
+.editor-dark-theme .ide-gutter {
+  background: var(--gutter-bg-dark, #232b3a);
+  color: var(--gutter-fg-dark, #94a3b8);
+  border-right: 1px solid var(--border-color-dark, #334155);
+}
+.dark-theme .ide-code,
+.cloudflare-dark-theme .ide-code,
+.gitlab-dark-theme .ide-code,
+.github-dark-theme .ide-code,
+.vscode-dark-theme .ide-code,
+.material-dark-theme .ide-code,
+.obsidian-dark-theme .ide-code,
+.editor-dark-theme .ide-code {
+  color: var(--editor-fg-dark, #e2e8f0);
+}
+@media (max-width: 700px) {
+  .ide-file-viewer {
+    font-size: 0.98rem;
+    min-height: 350px;
+    height: 65vh;
+  }
+  .ide-gutter {
+    padding: 1rem 0.3rem 1rem 0.7rem;
+    font-size: 0.97rem;
+  }
+  .ide-code {
+    padding: 1rem 0.5rem;
+    font-size: 0.98rem;
+  }
+}
+.fas {
+  font-family: 'Font Awesome 5 Free', 'FontAwesome', 'Font Awesome 6 Free', Arial, sans-serif !important;
+  font-weight: 900 !important;
+  font-style: normal;
+  font-display: block;
+  display: inline-block;
+  color: inherit;
+  background: none !important;
+  text-shadow: none !important;
+  vertical-align: middle;
+  font-size: 1.2em;
 }
