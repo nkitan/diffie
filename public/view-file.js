@@ -151,16 +151,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const lines = text.split('\n');
     ideGutter.innerHTML = '';
     ideCode.innerHTML = '';
+    
+    // Create a container for code lines to set proper height
+    const codeContainer = document.createElement('div');
+    codeContainer.className = 'code-container';
+    
+    // Create a container for line numbers to match height
+    const gutterContainer = document.createElement('div');
+    gutterContainer.className = 'gutter-container';
+    
     lines.forEach((line, idx) => {
       const ln = document.createElement('div');
       ln.textContent = idx + 1;
       ln.className = 'ide-linenum';
-      ideGutter.appendChild(ln);
+      gutterContainer.appendChild(ln);
+      
       const codeLine = document.createElement('div');
       // Preserve whitespace and tabs
       codeLine.textContent = line || '\u200b';
       codeLine.className = 'ide-codeline';
-      ideCode.appendChild(codeLine);
+      codeContainer.appendChild(codeLine);
+    });
+    
+    ideGutter.appendChild(gutterContainer);
+    ideCode.appendChild(codeContainer);
+    
+    // Add scroll synchronization
+    ideCode.addEventListener('scroll', () => {
+      ideGutter.scrollTop = ideCode.scrollTop;
     });
   }
 
@@ -176,11 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     renderFileWithLineNumbers('No file specified.');
   }
-
-  // Optional: Scroll sync between gutter and code
-  ideCode.addEventListener('scroll', () => {
-    ideGutter.scrollTop = ideCode.scrollTop;
-  });
 
   // --- Tab Activation (future-proof) ---
   const tabBtns = document.querySelectorAll('.tab-btn');

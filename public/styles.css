@@ -2172,12 +2172,13 @@ footer::before {
   background: var(--editor-bg, #f8fafc);
   border-radius: 0 0 10px 10px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
-  overflow: auto;
+  overflow: hidden; /* Changed from auto to hidden */
   height: 90vh;
-  min-height: 900px;
+  min-height: 500px; /* Reduced from 900px */
   max-height: 100vh;
   font-family: var(--mono-font, 'Fira Mono', 'Menlo', 'Consolas', monospace);
   font-size: 1.1rem;
+  position: relative; /* Added position relative */
 }
 .ide-gutter {
   background: var(--gutter-bg, #f1f5f9);
@@ -2190,6 +2191,10 @@ footer::before {
   font-size: 1.05rem;
   line-height: 1.6;
   letter-spacing: 0.01em;
+  overflow-y: hidden; /* Hide vertical overflow */
+  position: sticky; /* Make it sticky */
+  left: 0; /* Stick to the left */
+  z-index: 1; /* Ensure it's above the code */
 }
 .ide-code {
   flex: 1 1 auto;
@@ -2198,11 +2203,12 @@ footer::before {
   color: var(--editor-fg, #22292f);
   border: none;
   border-radius: 0 0 10px 0;
-  overflow-x: auto;
+  overflow: auto; /* Allow scrolling here */
   white-space: pre;
   font-size: 1.1rem;
   line-height: 1.6;
   box-sizing: border-box;
+  height: 100%; /* Ensure it takes full height */
 }
 .dark-theme .ide-file-viewer,
 .cloudflare-dark-theme .ide-file-viewer,
@@ -2236,6 +2242,20 @@ footer::before {
 .editor-dark-theme .ide-code {
   color: var(--editor-fg-dark, #e2e8f0);
 }
+.ide-linenum, .ide-codeline {
+  height: 1.6em; /* Match line height */
+  white-space: pre;
+}
+
+.ide-linenum {
+  padding-right: 0.5em;
+}
+
+.code-container, .gutter-container {
+  min-height: fit-content;
+  width: 100%;
+}
+
 @media (max-width: 700px) {
   .ide-file-viewer {
     font-size: 0.98rem;
