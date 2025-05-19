@@ -2047,13 +2047,13 @@ footer::before {
   height: 70vh;
   min-height: 400px;
   max-height: 80vh;
-  background: var(--panel-bg);
-  border-radius: 10px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   margin: 0 auto;
   width: 100%;
-  max-width: 1000px;
+  max-width: 95vw;
 }
 
 .file-view-content {
@@ -2063,18 +2063,18 @@ footer::before {
   font-size: 1.1rem;
   line-height: 1.6;
   padding: 2rem 2.5rem;
-  background: var(--editor-bg, #f8fafc);
-  color: var(--editor-fg, #22292f);
+  background: var(--editor-bg);
+  color: var(--editor-fg);
   border: none;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   overflow: auto;
-  font-family: var(--mono-font, 'Fira Mono', 'Menlo', 'Consolas', monospace);
+  font-family: var(--mono-font);
   box-sizing: border-box;
 }
 
 .filename-bar {
-  background: var(--panel-header-bg, #f1f5f9);
-  color: var(--panel-header-fg, #334155);
+  background: var(--card-bg);
+  color: var(--text-color);
   font-weight: 600;
   font-size: 1.05rem;
   padding: 0.7rem 2.5rem;
@@ -2100,29 +2100,15 @@ footer::before {
   }
 }
 
-.dark-theme .file-view-content,
-.cloudflare-dark-theme .file-view-content,
-.gitlab-dark-theme .file-view-content,
-.github-dark-theme .file-view-content,
-.vscode-dark-theme .file-view-content,
-.material-dark-theme .file-view-content,
-.obsidian-dark-theme .file-view-content,
-.editor-dark-theme .file-view-content {
-  background: var(--editor-bg-dark, #181f2a);
-  color: var(--editor-fg-dark, #e2e8f0);
+.file-view-content {
+  background: var(--editor-bg);
+  color: var(--editor-fg);
 }
 
-.dark-theme .filename-bar,
-.cloudflare-dark-theme .filename-bar,
-.gitlab-dark-theme .filename-bar,
-.github-dark-theme .filename-bar,
-.vscode-dark-theme .filename-bar,
-.material-dark-theme .filename-bar,
-.obsidian-dark-theme .filename-bar,
-.editor-dark-theme .filename-bar {
-  background: var(--panel-header-bg-dark, #232b3a);
-  color: var(--panel-header-fg-dark, #e2e8f0);
-  border-bottom: 1px solid var(--border-color-dark, #334155);
+.filename-bar {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logo .fas,
@@ -2169,78 +2155,52 @@ footer::before {
 
 .ide-file-viewer {
   display: flex;
-  background: var(--editor-bg, #f8fafc);
+  background: var(--editor-bg);
   border-radius: 0 0 10px 10px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
-  overflow: hidden; /* Changed from auto to hidden */
+  overflow: hidden;
   height: 90vh;
-  min-height: 500px; /* Reduced from 900px */
+  min-height: 500px;
   max-height: 100vh;
-  font-family: var(--mono-font, 'Fira Mono', 'Menlo', 'Consolas', monospace);
+  font-family: var(--mono-font);
   font-size: 1.1rem;
-  position: relative; /* Added position relative */
+  position: relative;
 }
+
 .ide-gutter {
-  background: var(--gutter-bg, #f1f5f9);
-  color: var(--gutter-fg, #64748b);
+  background: var(--gutter-bg);
+  color: var(--gutter-fg);
   text-align: right;
   user-select: none;
-  padding: 2rem 0.7rem 2rem 1.2rem;
-  border-right: 1px solid var(--border-color, #e2e8f0);
-  min-width: 3.2em;
+  padding: 2rem 0.5rem 2rem 0.5rem;
+  border-right: 1px solid var(--border-color);
+  min-width: 2.5em;
+  max-width: 4em;
   font-size: 1.05rem;
   line-height: 1.6;
   letter-spacing: 0.01em;
-  overflow-y: hidden; /* Hide vertical overflow */
-  position: sticky; /* Make it sticky */
-  left: 0; /* Stick to the left */
-  z-index: 1; /* Ensure it's above the code */
+  overflow-y: hidden;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex-shrink: 0;
 }
+
 .ide-code {
   flex: 1 1 auto;
-  padding: 2rem 2.5rem;
+  padding: 2rem 1.5rem 2rem 1rem;
   background: transparent;
-  color: var(--editor-fg, #22292f);
+  color: var(--editor-fg);
   border: none;
   border-radius: 0 0 10px 0;
-  overflow: auto; /* Allow scrolling here */
+  overflow: auto;
   white-space: pre;
   font-size: 1.1rem;
   line-height: 1.6;
   box-sizing: border-box;
-  height: 100%; /* Ensure it takes full height */
-}
-.dark-theme .ide-file-viewer,
-.cloudflare-dark-theme .ide-file-viewer,
-.gitlab-dark-theme .ide-file-viewer,
-.github-dark-theme .ide-file-viewer,
-.vscode-dark-theme .ide-file-viewer,
-.material-dark-theme .ide-file-viewer,
-.obsidian-dark-theme .ide-file-viewer,
-.editor-dark-theme .ide-file-viewer {
-  background: var(--editor-bg-dark, #181f2a);
-}
-.dark-theme .ide-gutter,
-.cloudflare-dark-theme .ide-gutter,
-.gitlab-dark-theme .ide-gutter,
-.github-dark-theme .ide-gutter,
-.vscode-dark-theme .ide-gutter,
-.material-dark-theme .ide-gutter,
-.obsidian-dark-theme .ide-gutter,
-.editor-dark-theme .ide-gutter {
-  background: var(--gutter-bg-dark, #232b3a);
-  color: var(--gutter-fg-dark, #94a3b8);
-  border-right: 1px solid var(--border-color-dark, #334155);
-}
-.dark-theme .ide-code,
-.cloudflare-dark-theme .ide-code,
-.gitlab-dark-theme .ide-code,
-.github-dark-theme .ide-code,
-.vscode-dark-theme .ide-code,
-.material-dark-theme .ide-code,
-.obsidian-dark-theme .ide-code,
-.editor-dark-theme .ide-code {
-  color: var(--editor-fg-dark, #e2e8f0);
+  height: 100%;
+  min-width: 85%;
+  width: 100%;
 }
 .ide-linenum, .ide-codeline {
   height: 1.6em; /* Match line height */
@@ -2254,6 +2214,12 @@ footer::before {
 .code-container, .gutter-container {
   min-height: fit-content;
   width: 100%;
+}
+
+.code-container {
+  min-width: max-content; /* Ensure it expands to fit content */
+  padding-right: 4rem; /* Increased padding on the right for long lines */
+  width: auto; /* Allow natural width */
 }
 
 @media (max-width: 700px) {

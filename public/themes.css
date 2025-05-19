@@ -1,6 +1,23 @@
 /* Themes for Diffie */
 
 /* Default theme (already defined in styles.css) */
+/* Adding editor-specific variables to default theme */
+:root {
+  /* Editor-specific variables */
+  --editor-bg: #f8fafc;
+  --editor-fg: #22292f;
+  --gutter-bg: #f1f5f9;
+  --gutter-fg: #64748b;
+  --mono-font: 'Fira Mono', 'Menlo', 'Consolas', monospace;
+}
+
+.dark-theme {
+  /* Editor-specific variables for dark theme */
+  --editor-bg: #181f2a;
+  --editor-fg: #e2e8f0;
+  --gutter-bg: #232b3a;
+  --gutter-fg: #94a3b8;
+}
 
 /* Cloudflare theme */
 .cloudflare-theme {
@@ -34,6 +51,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+  
+  /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #1d1d1d;
+  --gutter-bg: #f3f3f3;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* Cloudflare dark theme */
@@ -63,6 +87,13 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  
+  /* Editor-specific variables */
+  --editor-bg: #1d1d1d;
+  --editor-fg: #f5f5f5;
+  --gutter-bg: #2d2d2d;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* GitLab theme - Based on Pajamas Design System */
@@ -97,6 +128,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+
+  /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #23272e;
+  --gutter-bg: #f3f4f6;
+  --gutter-fg: #b0b7c3;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* GitLab dark theme - Based on Pajamas Design System */
@@ -126,6 +164,13 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+
+    /* Editor-specific variables */
+  --editor-bg: #1d1d1d;
+  --editor-fg: #f5f5f5;
+  --gutter-bg: #2d2d2d;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* GitHub theme - Based on Primer Design System */
@@ -160,6 +205,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+
+  /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #23272e;
+  --gutter-bg: #f3f4f6;
+  --gutter-fg: #b0b7c3;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* GitHub dark theme - Based on Primer Design System */
@@ -189,6 +241,13 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+    /* Editor-specific variables */
+  --editor-bg: #1d1d1d;
+  --editor-fg: #f5f5f5;
+  --gutter-bg: #2d2d2d;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* VS Code theme - Based on official VS Code Light+ theme */
@@ -223,6 +282,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+
+  /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #23272e;
+  --gutter-bg: #f3f4f6;
+  --gutter-fg: #b0b7c3;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* VS Code dark theme - Based on official VS Code Dark+ theme */
@@ -252,6 +318,13 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+    /* Editor-specific variables */
+  --editor-bg: #1d1d1d;
+  --editor-fg: #f5f5f5;
+  --gutter-bg: #2d2d2d;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* Material Design theme - Based on Material Design 3 */
@@ -286,6 +359,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+
+    /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #23272e;
+  --gutter-bg: #f3f4f6;
+  --gutter-fg: #b0b7c3;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* Material Design dark theme - Based on Material Design 3 */
@@ -315,6 +395,13 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.3);
+
+    /* Editor-specific variables */
+  --editor-bg: #1d1d1d;
+  --editor-fg: #f5f5f5;
+  --gutter-bg: #2d2d2d;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* Obsidian theme */
@@ -349,6 +436,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+
+    /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #23272e;
+  --gutter-bg: #f3f4f6;
+  --gutter-fg: #b0b7c3;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* Obsidian dark theme */
@@ -378,6 +472,13 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.3);
+
+    /* Editor-specific variables */
+  --editor-bg: #1d1d1d;
+  --editor-fg: #f5f5f5;
+  --gutter-bg: #2d2d2d;
+  --gutter-fg: #888888;
+  --mono-font: 'Roboto Mono', monospace;
 }
 
 /* Editor theme - Subtle, professional, text editor inspired */
@@ -412,6 +513,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+  
+  /* Editor-specific variables */
+  --editor-bg: #ffffff;
+  --editor-fg: #23272e;
+  --gutter-bg: #f3f4f6;
+  --gutter-fg: #b0b7c3;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* Editor dark theme - improved for consistency with other dark themes */
@@ -446,6 +554,13 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
+  
+  /* Editor-specific variables */
+  --editor-bg: #1a1d23;
+  --editor-fg: #e3eaf2;
+  --gutter-bg: #232a33;
+  --gutter-fg: #6c7680;
+  --mono-font: 'Roboto Mono', 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
 
 /* Theme selector styles */
@@ -563,6 +678,16 @@
 
 .theme-option.active {
   background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.theme-option.active::before {
+  content: '\2713'; /* Unicode checkmark */
+  display: inline-block;
+  margin-right: 0.75rem;
+  color: var(--primary-color);
+  font-size: 1.1em;
+  font-weight: bold;
+  vertical-align: middle;
 }
 
 .theme-color-preview {
