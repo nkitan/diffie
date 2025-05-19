@@ -474,9 +474,9 @@
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 6px rgba(0, 0, 0, 0.3);
 
     /* Editor-specific variables */
-  --editor-bg: #1d1d1d;
+  --editor-bg: #180317;
   --editor-fg: #f5f5f5;
-  --gutter-bg: #2d2d2d;
+  --gutter-bg: #2e072c;
   --gutter-fg: #888888;
   --mono-font: 'Roboto Mono', monospace;
 }
@@ -680,22 +680,23 @@
   background-color: rgba(var(--primary-color-rgb), 0.1);
 }
 
-.theme-option.active::before {
-  content: '\2713'; /* Unicode checkmark */
-  display: inline-block;
-  margin-right: 0.75rem;
-  color: var(--primary-color);
-  font-size: 1.1em;
-  font-weight: bold;
-  vertical-align: middle;
-}
-
 .theme-color-preview {
   width: 20px;
   height: 20px;
   border-radius: 50%;
   margin-right: 0.75rem;
   border: 1px solid var(--border-color);
+}
+
+.theme-check {
+  display: none;
+  color: var(--primary-color);
+  font-size: 1.1em;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+.theme-option.active .theme-check {
+  display: inline-block;
 }
 
 /* Color previews for each theme */

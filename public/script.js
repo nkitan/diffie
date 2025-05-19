@@ -851,25 +851,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function selectTheme(option) {
-    const theme = option.dataset.theme;
-    const dark = option.dataset.dark === 'true';
-    
-    // Update state
-    currentTheme = theme;
-    isDarkMode = dark;
-    
-    // Apply the theme
-    applyTheme(theme, dark);
-    
-    // Save preferences
+    // Remove active class from all options
+    themeOptions.forEach(opt => opt.classList.remove('active'));
+    // Add active class to the selected option
+    option.classList.add('active');
+
+    // Set theme and dark mode
+    const theme = option.getAttribute('data-theme');
+    const dark = option.getAttribute('data-dark') === 'true';
     localStorage.setItem('themeStyle', theme);
     localStorage.setItem('theme', dark ? 'dark' : 'light');
-    
-    // Update checkbox state
-    themeToggle.checked = dark;
-    
-    // Close dropdown
-    themeSelectorDropdown.classList.remove('show');
+    applyTheme(theme, dark);
+
+    // Update checkmarks (handled by CSS, but force repaint for accessibility)
+    themeOptions.forEach(opt => {
+      const check = opt.querySelector('.theme-check');
+      if (check) check.setAttribute('aria-hidden', !opt.classList.contains('active'));
+    });
   }
   
   function applyTheme(theme, dark) {

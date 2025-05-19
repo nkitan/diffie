@@ -89,9 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const t = option.getAttribute('data-theme');
       const d = option.getAttribute('data-dark') === 'true';
       if (t === theme && d === dark) {
-        option.classList.add('selected');
+        option.classList.add('selected', 'active');
+        const check = option.querySelector('.theme-check');
+        if (check) check.setAttribute('aria-hidden', 'false');
       } else {
-        option.classList.remove('selected');
+        option.classList.remove('selected', 'active');
+        const check = option.querySelector('.theme-check');
+        if (check) check.setAttribute('aria-hidden', 'true');
       }
     });
   }
