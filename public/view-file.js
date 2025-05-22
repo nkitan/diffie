@@ -212,4 +212,80 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabContent) tabContent.classList.add('active');
     });
   });
+
+  // Download and Share functionality
+  const downloadBtn = document.getElementById('file-download-btn');
+  const shareBtn = document.getElementById('file-share-btn');
+
+  function downloadFile() {
+    const file = params.get('file');
+    if (!file) return;
+
+    fetch(`/api/file?file=${encodeURIComponent(file)}`)
+      .then(res => res.ok ? res.blob() : Promise.reject('Failed to load file'))
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        // Extract filename from path
+        const filename = file.split('/').pop();
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      })
+      .catch(err => {
+        console.error('Failed to download file:', err);
+        // Show error toast if it exists
+        const errorToast = document.getElementById('error-toast');
+        const errorMessage = document.getElementById('error-message');
+        if (errorToast && errorMessage) {
+          errorMessage.textContent = 'Failed to download file';
+          errorToast.classList.remove('hidden');
+          setTimeout(() => errorToast.classList.add('hidden'), 3000);
+        }
+      });
+  }
+
+  function shareFile() {
+    const url = window.location.href;
+    // Use Web Share API if available
+    if (navigator.share) {
+      navigator.share({
+        title: 'View File in Diffie',
+        url: url
+      }).catch(err => {
+        console.error('Failed to share:', err);
+        fallbackShare();
+      });
+    } else {
+      fallbackShare();
+    }
+  }
+
+  function fallbackShare() {
+    // Fallback to copying to clipboard
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      // Show success toast if it exists
+      const successToast = document.getElementById('success-toast');
+      const successMessage = document.getElementById('success-message');
+      if (successToast && successMessage) {
+        successMessage.textContent = 'Link copied to clipboard';
+        successToast.classList.remove('hidden');
+        setTimeout(() => successToast.classList.add('hidden'), 3000);
+      }
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
+  }
+
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', downloadFile);
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener('click', shareFile);
+  }
 });

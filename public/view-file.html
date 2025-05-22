@@ -148,6 +148,14 @@
         <div class="file-view-container">
           <div class="filename-bar">
             <span id="file-view-filename"></span>
+            <div class="file-controls">
+              <button id="file-download-btn" class="control-btn" title="Download file">
+                <i class="fas fa-download"></i>
+              </button>
+              <button id="file-share-btn" class="control-btn" title="Share file">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
           </div>
           <div class="ide-file-viewer">
             <div class="ide-gutter" id="ide-gutter"></div>
@@ -160,6 +168,23 @@
       <p id="app-footer">Diffie &copy; 2025 | A beautiful file diff viewer | Ankit Das</p>
     </footer>
   </div>
+
+  <div id="error-toast" class="toast error-toast hidden">
+    <div class="toast-content">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="error-message"></span>
+    </div>
+    <button class="toast-close">&times;</button>
+  </div>
+  
+  <div id="success-toast" class="toast success-toast hidden">
+    <div class="toast-content">
+      <i class="fas fa-check-circle"></i>
+      <span id="success-message"></span>
+    </div>
+    <button class="toast-close">&times;</button>
+  </div>
+
   <script src="view-file.js"></script>
 </body>
 </html>
