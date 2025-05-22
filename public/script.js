@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lineNumbersBtn = document.getElementById('line-numbers-btn');
   const showCompleteBtn = document.getElementById('show-complete-btn');
   const shareBtn = document.getElementById('share-btn');
+  const regularShareBtn = document.getElementById('regular-share-btn');
   const loadingIndicator = document.querySelector('.loading-indicator');
   const emptyState = document.querySelector('.empty-state');
   const noChangesState = document.querySelector('.no-changes-state');
@@ -77,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   lineNumbersBtn.addEventListener('click', toggleLineNumbers);
   showCompleteBtn.addEventListener('click', toggleCompleteFiles);
   shareBtn.addEventListener('click', shareDiff);
+  regularShareBtn.addEventListener('click', shareDiff);
   themeToggle.addEventListener('change', toggleTheme);
   themeSelectorBtn.addEventListener('click', toggleThemeSelector);
   themeOptions.forEach(option => {

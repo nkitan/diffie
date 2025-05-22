@@ -143,6 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
   focusModeToggle.addEventListener('click', toggleFocusMode);
   multiFocusModeBtn.addEventListener('click', toggleFocusMode);
   
+  // Add event listener for the multi-share button
+  const multiShareBtn = document.getElementById('multi-share-btn');
+  if (multiShareBtn) {
+    multiShareBtn.addEventListener('click', shareDiff);
+  }
+
   // Add event listener for the focus mode generate report button
   if (focusModeGenerateReportBtn) {
     focusModeGenerateReportBtn.addEventListener('click', generateReport);

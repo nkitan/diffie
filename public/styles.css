@@ -1225,15 +1225,13 @@ main {
   border: 2px dashed rgba(var(--border-color-rgb), 0.7);
   margin: 0;
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   overflow: hidden;
   transition: all 0.3s ease;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 5;
+  min-height: inherit;
 }
 
 .empty-state::before {
@@ -1556,6 +1554,8 @@ footer::before {
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .file-pair {
@@ -1754,10 +1754,11 @@ footer::before {
   border-radius: var(--radius-md);
   border: 1px solid rgba(var(--border-color-rgb), 0.5);
   padding: 1.5rem;
-  min-height: 400px;
+  min-height: calc(75vh - 4rem);
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .multi-diff-results {
