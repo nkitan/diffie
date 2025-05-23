@@ -7,9 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeSelectorDropdown = document.getElementById('theme-selector-dropdown');
   const themeOptions = document.querySelectorAll('.theme-option');
 
-  // Get theme from localStorage or system
-  let currentTheme = localStorage.getItem('themeStyle') || 'default';
-  let isDarkMode = localStorage.getItem('theme') === 'dark' ||
+  // Get theme from URL parameters, localStorage, or system
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlTheme = urlParams.get('theme');
+  let [themeStyle, themeMode] = (urlTheme || '').split('-');
+  
+  // If URL theme is specified, use it. Otherwise fall back to localStorage or system preferences
+  let currentTheme = themeStyle || localStorage.getItem('themeStyle') || 'default';
+  let isDarkMode = themeMode === 'dark' || 
+    localStorage.getItem('theme') === 'dark' ||
     (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
 
   function applyTheme(theme, dark) {
@@ -31,6 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
       'editor-theme',
       'editor-dark-theme'
     );
+
+    // Update URL with current theme if it was specified in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('theme')) {
+      const newThemeParam = `${theme}-${dark ? 'dark' : 'light'}`;
+      urlParams.set('theme', newThemeParam);
+      const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+      window.history.replaceState({}, '', newUrl);
+    }
     // Apply the selected theme
     if (theme === 'default') {
       if (dark) {

@@ -171,6 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // Call the toggleTheme function from script.js
       if (window.toggleTheme) {
         window.toggleTheme();
+        
+        // Update URL parameter for theme
+        const url = new URL(window.location);
+        const currentTheme = localStorage.getItem('themeStyle') || 'default';
+        const isDark = focusModeThemeToggle.checked;
+        url.searchParams.set('theme', `${currentTheme}-${isDark ? 'dark' : 'light'}`);
+        window.history.pushState({}, '', url);
       } else {
         // Fallback if toggleTheme is not available
         document.body.classList.toggle('dark-theme');
@@ -994,6 +1001,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const focusParam = urlParams.get('focus');
     
+    if (focusParam === 'true') {
+      enableFocusMode();
+    }
+  }
+  
+  // Add functions to check URL parameters for theme and focus mode
+  function checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Check for theme parameter
+    const themeParam = urlParams.get('theme');
+    if (themeParam) {
+      // Parse theme parameter (format: themeName-variant, e.g. vscode-dark)
+      const [themeName, variant] = themeParam.split('-');
+      const isDark = variant === 'dark';
+      
+      // Validate theme name
+      const validThemes = ['default', 'vscode', 'github', 'gitlab', 'material', 'cloudflare', 'obsidian', 'editor'];
+      
+      if (validThemes.includes(themeName)) {
+        // Set the theme
+        localStorage.setItem('themeStyle', themeName);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        
+        // Apply theme through script.js if available
+        if (window.applyTheme) {
+          window.applyTheme(themeName, isDark);
+        }
+        
+        // Update focus mode theme toggle if it exists
+        if (focusModeThemeToggle) {
+          focusModeThemeToggle.checked = isDark;
+        }
+      }
+    }
+  
+    // Check for focus mode parameter
+    const focusParam = urlParams.get('focus');
     if (focusParam === 'true') {
       enableFocusMode();
     }

@@ -133,86 +133,86 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/info')
       .then(response => response.json())
       .then(data => {
-        // Only process URL params if the relevant tab is visible
-        if (data.ui && data.ui.TABS) {
-          const tabsVisible = data.ui.TABS.VISIBLE;
+        // If URL param processing is disabled in config, return early
+        if (data.security && data.security.DISABLE_URL_PARAMS) {
+          return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const themeParam = urlParams.get('theme');
+        
+        if (themeParam) {
+          // Parse theme parameter (format: themeName-variant, e.g. vscode-dark)
+          const [themeName, variant] = themeParam.split('-');
+          const isDark = variant === 'dark';
           
-          // Convert tabsVisible to array format for easier checking
-          let visibleTabs = [];
-          if (tabsVisible === 'all' || tabsVisible === 'both') {
-            visibleTabs = ['server', 'local', 'multiple'];
-          } else if (Array.isArray(tabsVisible)) {
-            visibleTabs = tabsVisible;
-          } else {
-            visibleTabs = [tabsVisible];
-          }
+          // Validate theme name
+          const validThemes = ['default', 'vscode', 'github', 'gitlab', 'material', 'cloudflare', 'obsidian', 'editor'];
           
-          // Check which tabs are visible
-          const isServerVisible = visibleTabs.includes('server');
-          const isLocalVisible = visibleTabs.includes('local');
-          const isMultipleVisible = visibleTabs.includes('multiple');
-          
-          // If no tabs are visible, don't process any params
-          if (visibleTabs.length === 0) {
-            return;
-          }
-          
-          const urlParams = new URLSearchParams(window.location.search);
-          
-          // Check for multiple file pairs format
-          const pairsParam = urlParams.getAll('pairs');
-          if (pairsParam && pairsParam.length > 0 && isMultipleVisible) {
-            // Only switch tab if tab switching is allowed and multiple tab is visible
-            if (data.ui.TABS.ALLOW_SWITCHING !== false) {
-              switchTab('multi-files');
-              
-              // Process the pairs and trigger multi-file comparison
-              processMultiFilePairs(pairsParam);
-            }
-            return;
-          }
-          
-          // Check for single file pair format (backward compatibility)
-          const file1 = urlParams.get('file1');
-          const file2 = urlParams.get('file2');
-          const mode = urlParams.get('mode') || 'server';
-          
-          if (file1 && file2) {
-            if (mode === 'server' && isServerVisible) {
-              // Only switch tab if tab switching is allowed and server tab is visible
-              if (data.ui.TABS.ALLOW_SWITCHING !== false) {
-                switchTab('server-files');
+          if (validThemes.includes(themeName)) {
+            // Set the theme
+            currentTheme = themeName;
+            isDarkMode = isDark;
+            
+            // Apply the theme
+            applyTheme(currentTheme, isDarkMode);
+            
+            // Update the theme toggle and save to localStorage
+            themeToggle.checked = isDarkMode;
+            localStorage.setItem('themeStyle', currentTheme);
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            
+            // Update theme selector UI
+            themeOptions.forEach(option => {
+              const t = option.getAttribute('data-theme');
+              const d = option.getAttribute('data-dark') === 'true';
+              if (t === currentTheme && d === isDarkMode) {
+                option.classList.add('active');
+              } else {
+                option.classList.remove('active');
               }
-              
-              file1PathInput.value = file1;
-              file2PathInput.value = file2;
-              compareServerFiles();
-            }
+            });
           }
-        } else {
-          // Default behavior if no tab configuration
-          const urlParams = new URLSearchParams(window.location.search);
-          
-          // Check for multiple file pairs format
-          const pairsParam = urlParams.getAll('pairs');
-          if (pairsParam && pairsParam.length > 0) {
+        }
+
+        // Process file paths if they exist in URL
+        const file1Param = urlParams.get('file1');
+        const file2Param = urlParams.get('file2');
+        const multiPairsParam = urlParams.getAll('pairs');
+        
+        // Check which tabs are visible
+        const isServerVisible = data.ui.TABS.VISIBLE.includes('server');
+        const isLocalVisible = data.ui.TABS.VISIBLE.includes('local');
+        const isMultipleVisible = data.ui.TABS.VISIBLE.includes('multiple');
+        
+        // If no tabs are visible, don't process any params
+        if (data.ui.TABS.VISIBLE.length === 0) {
+          return;
+        }
+        
+        // Check for multiple file pairs format
+        if (multiPairsParam && multiPairsParam.length > 0 && isMultipleVisible) {
+          // Only switch tab if tab switching is allowed and multiple tab is visible
+          if (data.ui.TABS.ALLOW_SWITCHING !== false) {
             switchTab('multi-files');
-            processMultiFilePairs(pairsParam);
-            return;
+            
+            // Process the pairs and trigger multi-file comparison
+            processMultiFilePairs(multiPairsParam);
           }
-          
-          // Check for single file pair format (backward compatibility)
-          const file1 = urlParams.get('file1');
-          const file2 = urlParams.get('file2');
-          const mode = urlParams.get('mode') || 'server';
-          
-          if (file1 && file2) {
-            if (mode === 'server') {
+          return;
+        }
+        
+        // Check for single file pair format (backward compatibility)
+        if (file1Param && file2Param) {
+          if (isServerVisible) {
+            // Only switch tab if tab switching is allowed and server tab is visible
+            if (data.ui.TABS.ALLOW_SWITCHING !== false) {
               switchTab('server-files');
-              file1PathInput.value = file1;
-              file2PathInput.value = file2;
-              compareServerFiles();
             }
+            
+            file1PathInput.value = file1Param;
+            file2PathInput.value = file2Param;
+            compareServerFiles();
           }
         }
       })
@@ -812,11 +812,15 @@ document.addEventListener('DOMContentLoaded', () => {
       lineNumbersBtn.title = "Hide line numbers";
     }
   }
-
   function toggleTheme() {
     isDarkMode = !isDarkMode;
     applyTheme(currentTheme, isDarkMode);
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    
+    // Update URL parameters
+    const url = new URL(window.location);
+    url.searchParams.set('theme', `${currentTheme}-${isDarkMode ? 'dark' : 'light'}`);
+    window.history.pushState({}, '', url);
     
     // Update the focus mode theme toggle if it exists
     const focusModeThemeToggle = document.getElementById('focus-mode-theme-toggle-checkbox');
@@ -825,8 +829,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // Make toggleTheme available globally for multi-diff.js
+  // Make theme functions available globally for multi-diff.js
   window.toggleTheme = toggleTheme;
+  window.applyTheme = applyTheme;
   
   function toggleThemeSelector() {
     themeSelectorDropdown.classList.toggle('show');
@@ -851,8 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
       themeSelectorDropdown.classList.remove('show');
     }
   }
-  
-  function selectTheme(option) {
+    function selectTheme(option) {
     // Remove active class from all options
     themeOptions.forEach(opt => opt.classList.remove('active'));
     // Add active class to the selected option
@@ -864,6 +868,11 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('themeStyle', theme);
     localStorage.setItem('theme', dark ? 'dark' : 'light');
     applyTheme(theme, dark);
+    
+    // Update URL parameters
+    const url = new URL(window.location);
+    url.searchParams.set('theme', `${theme}-${dark ? 'dark' : 'light'}`);
+    window.history.pushState({}, '', url);
 
     // Update checkmarks (handled by CSS, but force repaint for accessibility)
     themeOptions.forEach(opt => {
