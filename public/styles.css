@@ -690,7 +690,7 @@ main {
 }
 
 .diff-container:hover {
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(var(--primary-color-rgb, 79, 70, 229), 0.1);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(var(--primary-color, 79, 70, 229), 0.1);
 }
 
 @keyframes highlight-container {
@@ -914,6 +914,21 @@ main {
   transition: all 0.3s ease;
   background-color: rgba(var(--card-bg-rgb), 0.5);
   position: relative;
+}
+
+.line.empty {
+  background-color: transparent;
+  min-height: 1.7em; /* Match the line-height of other lines */
+  border: none;
+}
+
+.line.empty .line-content {
+  user-select: none;
+}
+
+/* Make sure empty lines maintain spacing */
+.line.empty + .line {
+  margin-top: 0;
 }
 
 .side-by-side .diff-view {
@@ -1170,11 +1185,18 @@ main {
 }
 
 .line.empty {
-  background: transparent !important;
-  color: transparent !important;
-  min-height: 1.6em;
-  border: none !important;
-  pointer-events: none;
+  background-color: transparent;
+  min-height: 1.7em; /* Match the line-height of other lines */
+  border: none;
+}
+
+.line.empty .line-content {
+  user-select: none;
+}
+
+/* Make sure empty lines maintain spacing */
+.line.empty + .line {
+  margin-top: 0;
 }
 
 .unified-view {

@@ -171,26 +171,51 @@ document.addEventListener('DOMContentLoaded', () => {
     ideGutter.innerHTML = '';
     ideCode.innerHTML = '';
     
-    // Create a container for code lines to set proper height
     const codeContainer = document.createElement('div');
     codeContainer.className = 'code-container';
-    
-    // Create a container for line numbers to match height
     const gutterContainer = document.createElement('div');
     gutterContainer.className = 'gutter-container';
     
-    lines.forEach((line, idx) => {
-      const ln = document.createElement('div');
-      ln.textContent = idx + 1;
-      ln.className = 'ide-linenum';
-      gutterContainer.appendChild(ln);
+    let lineNumber = 1;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const nextLine = i < lines.length - 1 ? lines[i + 1] : null;
+      
+      if (line.startsWith('-') && nextLine && nextLine.startsWith('+')) {
+        // Handle deletion followed by addition (replacement)
+        const ln = document.createElement('div');
+        ln.textContent = lineNumber++;
+        ln.className = 'ide-linenum deletion';
+        gutterContainer.appendChild(ln);
+        
+        const codeLine = document.createElement('div');
+        codeLine.textContent = line;
+        codeLine.className = 'ide-codeline deletion';
+        codeContainer.appendChild(codeLine);
+        
+        const codeLineAdd = document.createElement('div');
+        codeLineAdd.textContent = nextLine;
+        codeLineAdd.className = 'ide-codeline addition';
+        codeContainer.appendChild(codeLineAdd);
+        i++; // Skip the next line since we've handled it
+        continue;
+      }
+      
+      if (line.startsWith('+') || !line.startsWith('-')) {
+        const ln = document.createElement('div');
+        ln.textContent = lineNumber++;
+        ln.className = 'ide-linenum';
+        if (line.startsWith('+')) ln.classList.add('addition');
+        gutterContainer.appendChild(ln);
+      }
       
       const codeLine = document.createElement('div');
-      // Preserve whitespace and tabs
-      codeLine.textContent = line || '\u200b';
+      codeLine.textContent = line;
       codeLine.className = 'ide-codeline';
+      if (line.startsWith('+')) codeLine.classList.add('addition');
+      else if (line.startsWith('-')) codeLine.classList.add('deletion');
       codeContainer.appendChild(codeLine);
-    });
+    }
     
     ideGutter.appendChild(gutterContainer);
     ideCode.appendChild(codeContainer);

@@ -639,6 +639,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let deletions = 0;
     let changes = 0;
     
+    // New variables to handle empty lines for alignment
+    let pendingDeletions = 0;
+    let pendingAdditions = 0;
+
     // Check if files are identical
     // When files are identical, the diff will only contain header lines and no actual changes
     let hasChanges = false;
@@ -681,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Check for hunk header
       if (line.startsWith('@@')) {
         inHeader = false;
-        hasChanges = true; // If we have a hunk header, there are changes
+        hasChanges = true;
         
         // Extract line numbers from hunk header
         const match = line.match(/@@ -(\d+),\d+ \+(\d+),\d+ @@/);
@@ -689,6 +693,10 @@ document.addEventListener('DOMContentLoaded', () => {
           file1LineNumber = parseInt(match[1]) - 1;
           file2LineNumber = parseInt(match[2]) - 1;
         }
+        
+        // Reset pending changes at each hunk
+        pendingDeletions = 0;
+        pendingAdditions = 0;
         continue;
       }
       
@@ -701,18 +709,28 @@ document.addEventListener('DOMContentLoaded', () => {
         deletions++;
         hasChanges = true;
         appendLine(file1Content, file1LineNumber, line.substring(1), 'deletion');
+        // Add empty line in file2 for alignment
+        appendLine(file2Content, '', '', 'empty');
+        pendingDeletions++;
       } else if (line.startsWith('+')) {
         // Addition - only in file2
         file2LineNumber++;
         additions++;
         hasChanges = true;
+        // Add empty line in file1 for alignment
+        appendLine(file1Content, '', '', 'empty');
         appendLine(file2Content, file2LineNumber, line.substring(1), 'addition');
+        pendingAdditions++;
       } else if (line.startsWith(' ')) {
         // Context - in both files
         file1LineNumber++;
         file2LineNumber++;
         appendLine(file1Content, file1LineNumber, line.substring(1), 'context');
         appendLine(file2Content, file2LineNumber, line.substring(1), 'context');
+        
+        // Reset pending changes when we hit a context line
+        pendingDeletions = 0;
+        pendingAdditions = 0;
       }
     }
     
@@ -750,18 +768,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
-
   function appendLine(container, lineNumber, content, type) {
     const lineEl = document.createElement('div');
     lineEl.className = `line ${type}`;
     
     const lineNumberEl = document.createElement('div');
     lineNumberEl.className = 'line-number';
-    lineNumberEl.textContent = lineNumber;
+    // Don't show line number for empty alignment lines
+    lineNumberEl.textContent = type === 'empty' ? '' : lineNumber;
     
     const lineContentEl = document.createElement('div');
     lineContentEl.className = 'line-content';
-    lineContentEl.textContent = content;
+    lineContentEl.textContent = type === 'empty' ? '\u200b' : content;
     
     lineEl.appendChild(lineNumberEl);
     lineEl.appendChild(lineContentEl);
