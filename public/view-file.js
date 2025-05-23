@@ -1,160 +1,125 @@
 // Minimal JS for view-file.html: theming, file loading, tab activation
-
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Theme Handling ---
-  const themeToggle = document.getElementById('theme-toggle-checkbox');
-  const themeSelectorBtn = document.getElementById('theme-selector-btn');
-  const themeSelectorDropdown = document.getElementById('theme-selector-dropdown');
-  const themeOptions = document.querySelectorAll('.theme-option');
+  // Initialize theme handling
+  function initializeTheme() {
+    const themeToggle = document.getElementById('theme-toggle-checkbox');
+    const themeSelectorBtn = document.getElementById('theme-selector-btn');
+    const themeSelectorDropdown = document.getElementById('theme-selector-dropdown');
+    const themeOptions = document.querySelectorAll('.theme-option');
 
-  // Get theme from URL parameters, localStorage, or system
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlTheme = urlParams.get('theme');
-  let [themeStyle, themeMode] = (urlTheme || '').split('-');
-  
-  // If URL theme is specified, use it. Otherwise fall back to localStorage or system preferences
-  let currentTheme = themeStyle || localStorage.getItem('themeStyle') || 'default';
-  let isDarkMode = themeMode === 'dark' || 
-    localStorage.getItem('theme') === 'dark' ||
-    (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+    // Make sure all theme elements exist before proceeding
+    if (!themeToggle || !themeSelectorBtn || !themeSelectorDropdown || !themeOptions.length) {
+      console.error('Theme elements not found');
+      return;
+    }
 
-  function applyTheme(theme, dark) {
-    // Remove all theme classes first (match main app logic)
-    document.body.classList.remove(
-      'dark-theme',
-      'cloudflare-theme',
-      'cloudflare-dark-theme',
-      'gitlab-theme',
-      'gitlab-dark-theme',
-      'github-theme',
-      'github-dark-theme',
-      'vscode-theme',
-      'vscode-dark-theme',
-      'material-theme',
-      'material-dark-theme',
-      'obsidian-theme',
-      'obsidian-dark-theme',
-      'editor-theme',
-      'editor-dark-theme'
-    );
-
-    // Update URL with current theme if it was specified in URL
+    // Get theme from URL parameters, localStorage, or system
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('theme')) {
-      const newThemeParam = `${theme}-${dark ? 'dark' : 'light'}`;
-      urlParams.set('theme', newThemeParam);
-      const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-      window.history.replaceState({}, '', newUrl);
+    const urlTheme = urlParams.get('theme');
+    let [themeStyle, themeMode] = (urlTheme || '').split('-');
+    
+    // If URL theme is specified, use it. Otherwise fall back to localStorage or system preferences
+    let currentTheme = themeStyle || localStorage.getItem('themeStyle') || 'default';
+    let isDarkMode = themeMode === 'dark' || 
+      localStorage.getItem('theme') === 'dark' ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+
+    function applyTheme(theme, dark) {
+      // Remove all theme classes first
+      document.body.classList.remove(
+        'dark-theme',
+        'cloudflare-theme',
+        'cloudflare-dark-theme',
+        'gitlab-theme',
+        'gitlab-dark-theme',
+        'github-theme',
+        'github-dark-theme',
+        'vscode-theme',
+        'vscode-dark-theme',
+        'material-theme',
+        'material-dark-theme',
+        'obsidian-theme',
+        'obsidian-dark-theme',
+        'editor-theme',
+        'editor-dark-theme'
+      );
+
+      // Update DOM state
+      document.body.setAttribute('data-theme', theme);
+      document.body.setAttribute('data-dark', dark ? 'true' : 'false');
+      
+      // Apply the selected theme
+      if (theme === 'default') {
+        if (dark) document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.add(dark ? `${theme}-dark-theme` : `${theme}-theme`);
+      }
+
+      // Update URL if theme was specified there
+      if (urlParams.has('theme')) {
+        const newThemeParam = `${theme}-${dark ? 'dark' : 'light'}`;
+        urlParams.set('theme', newThemeParam);
+        const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+        window.history.replaceState({}, '', newUrl);
+      }
+
+      // Store preferences
+      localStorage.setItem('themeStyle', theme);
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      themeToggle.checked = dark;
+
+      // Update dropdown state
+      themeOptions.forEach(option => {
+        const t = option.getAttribute('data-theme');
+        const d = option.getAttribute('data-dark') === 'true';
+        const isSelected = t === theme && d === dark;
+        option.classList.toggle('selected', isSelected);
+        option.classList.toggle('active', isSelected);
+        const check = option.querySelector('.theme-check');
+        if (check) check.setAttribute('aria-hidden', isSelected ? 'false' : 'true');
+      });
     }
-    // Apply the selected theme
-    if (theme === 'default') {
-      if (dark) {
-        document.body.classList.add('dark-theme');
+
+    // Initial theme application
+    applyTheme(currentTheme, isDarkMode);
+    themeToggle.checked = isDarkMode;
+
+    // Theme toggle handler
+    themeToggle.addEventListener('change', () => {
+      isDarkMode = themeToggle.checked;
+      applyTheme(currentTheme, isDarkMode);
+    });
+
+    // Theme selector handler
+    themeSelectorBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themeSelectorDropdown.classList.toggle('show');
+    });
+
+    // Handle clicks outside dropdown
+    document.addEventListener('click', (e) => {
+      if (themeSelectorDropdown.classList.contains('show') &&
+          !themeSelectorBtn.contains(e.target) &&
+          !themeSelectorDropdown.contains(e.target)) {
+        themeSelectorDropdown.classList.remove('show');
       }
-    } else if (theme === 'cloudflare') {
-      if (dark) {
-        document.body.classList.add('cloudflare-dark-theme');
-      } else {
-        document.body.classList.add('cloudflare-theme');
-      }
-    } else if (theme === 'gitlab') {
-      if (dark) {
-        document.body.classList.add('gitlab-dark-theme');
-      } else {
-        document.body.classList.add('gitlab-theme');
-      }
-    } else if (theme === 'github') {
-      if (dark) {
-        document.body.classList.add('github-dark-theme');
-      } else {
-        document.body.classList.add('github-theme');
-      }
-    } else if (theme === 'vscode') {
-      if (dark) {
-        document.body.classList.add('vscode-dark-theme');
-      } else {
-        document.body.classList.add('vscode-theme');
-      }
-    } else if (theme === 'material') {
-      if (dark) {
-        document.body.classList.add('material-dark-theme');
-      } else {
-        document.body.classList.add('material-theme');
-      }
-    } else if (theme === 'obsidian') {
-      if (dark) {
-        document.body.classList.add('obsidian-dark-theme');
-      } else {
-        document.body.classList.add('obsidian-theme');
-      }
-    } else if (theme === 'editor') {
-      if (dark) {
-        document.body.classList.add('editor-dark-theme');
-      } else {
-        document.body.classList.add('editor-theme');
-      }
-    }
-    document.body.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-dark', dark ? 'true' : 'false');
-    localStorage.setItem('themeStyle', theme);
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
-    themeToggle.checked = dark;
-    // Highlight selected theme in dropdown
+    });
+
+    // Theme option selection handler
     themeOptions.forEach(option => {
-      const t = option.getAttribute('data-theme');
-      const d = option.getAttribute('data-dark') === 'true';
-      if (t === theme && d === dark) {
-        option.classList.add('selected', 'active');
-        const check = option.querySelector('.theme-check');
-        if (check) check.setAttribute('aria-hidden', 'false');
-      } else {
-        option.classList.remove('selected', 'active');
-        const check = option.querySelector('.theme-check');
-        if (check) check.setAttribute('aria-hidden', 'true');
-      }
+      option.addEventListener('click', () => {
+        const newTheme = option.getAttribute('data-theme');
+        const isDark = option.getAttribute('data-dark') === 'true';
+        currentTheme = newTheme;
+        isDarkMode = isDark;
+        applyTheme(currentTheme, isDarkMode);
+        themeSelectorDropdown.classList.remove('show');
+      });
     });
   }
 
-  // Initial theme
-  applyTheme(currentTheme, isDarkMode);
-  themeToggle.checked = isDarkMode;
-
-  // Theme toggle (dark/light)
-  themeToggle.addEventListener('change', () => {
-    isDarkMode = themeToggle.checked;
-    applyTheme(currentTheme, isDarkMode);
-  });
-
-  // Theme selector dropdown (use 'show' class for consistency)
-  themeSelectorBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    themeSelectorDropdown.classList.toggle('show');
-    // Mark the current theme as active
-    themeOptions.forEach(option => {
-      const t = option.getAttribute('data-theme');
-      const d = option.getAttribute('data-dark') === 'true';
-      if (t === currentTheme && d === isDarkMode) {
-        option.classList.add('selected');
-      } else {
-        option.classList.remove('selected');
-      }
-    });
-  });
-  document.addEventListener('click', (e) => {
-    if (themeSelectorDropdown.classList.contains('show') &&
-        !themeSelectorBtn.contains(e.target) &&
-        !themeSelectorDropdown.contains(e.target)) {
-      themeSelectorDropdown.classList.remove('show');
-    }
-  });
-  themeOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      currentTheme = option.getAttribute('data-theme');
-      isDarkMode = option.getAttribute('data-dark') === 'true';
-      applyTheme(currentTheme, isDarkMode);
-      themeSelectorDropdown.classList.remove('show');
-    });
-  });
+  // Initialize theme system
+  initializeTheme();
 
   // --- File Loading ---
   const params = new URLSearchParams(window.location.search);
@@ -163,6 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const headingEl = document.getElementById('file-view-heading');
   const ideGutter = document.getElementById('ide-gutter');
   const ideCode = document.getElementById('ide-code');
+
+  if (!filenameEl || !ideGutter || !ideCode) {
+    console.error('Required file view elements not found');
+    return;
+  }
+
   filenameEl.textContent = file || 'No file selected';
   if (headingEl) headingEl.textContent = file || 'No file selected';
 
@@ -249,83 +220,4 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('active');
       const tab = btn.dataset.tab;
       const tabContent = document.getElementById(`${tab}-tab`);
-      if (tabContent) tabContent.classList.add('active');
-    });
-  });
-
-  // Download and Share functionality
-  const downloadBtn = document.getElementById('file-download-btn');
-  const shareBtn = document.getElementById('file-share-btn');
-
-  function downloadFile() {
-    const file = params.get('file');
-    if (!file) return;
-
-    fetch(`/api/file?file=${encodeURIComponent(file)}`)
-      .then(res => res.ok ? res.blob() : Promise.reject('Failed to load file'))
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        // Extract filename from path
-        const filename = file.split('/').pop();
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      })
-      .catch(err => {
-        console.error('Failed to download file:', err);
-        // Show error toast if it exists
-        const errorToast = document.getElementById('error-toast');
-        const errorMessage = document.getElementById('error-message');
-        if (errorToast && errorMessage) {
-          errorMessage.textContent = 'Failed to download file';
-          errorToast.classList.remove('hidden');
-          setTimeout(() => errorToast.classList.add('hidden'), 3000);
-        }
-      });
-  }
-
-  function shareFile() {
-    const url = window.location.href;
-    // Use Web Share API if available
-    if (navigator.share) {
-      navigator.share({
-        title: 'View File in Diffie',
-        url: url
-      }).catch(err => {
-        console.error('Failed to share:', err);
-        fallbackShare();
-      });
-    } else {
-      fallbackShare();
-    }
-  }
-
-  function fallbackShare() {
-    // Fallback to copying to clipboard
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      // Show success toast if it exists
-      const successToast = document.getElementById('success-toast');
-      const successMessage = document.getElementById('success-message');
-      if (successToast && successMessage) {
-        successMessage.textContent = 'Link copied to clipboard';
-        successToast.classList.remove('hidden');
-        setTimeout(() => successToast.classList.add('hidden'), 3000);
-      }
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-    });
-  }
-
-  if (downloadBtn) {
-    downloadBtn.addEventListener('click', downloadFile);
-  }
-
-  if (shareBtn) {
-    shareBtn.addEventListener('click', shareFile);
-  }
-});
+      if

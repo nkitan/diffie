@@ -78,13 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
   lineNumbersBtn.addEventListener('click', toggleLineNumbers);
   showCompleteBtn.addEventListener('click', toggleCompleteFiles);
   shareBtn.addEventListener('click', shareDiff);
-  regularShareBtn.addEventListener('click', shareDiff);
   themeToggle.addEventListener('change', toggleTheme);
-  themeSelectorBtn.addEventListener('click', toggleThemeSelector);
-  themeOptions.forEach(option => {
-    option.addEventListener('click', () => selectTheme(option));
-  });
-  document.addEventListener('click', closeThemeSelectorOnClickOutside);
+  
+  // Only bind theme events if we're on the main page (not view-file.html)
+  const isMainPage = !window.location.pathname.includes('view-file.html');
+  if (isMainPage && themeToggle && themeSelectorBtn && themeSelectorDropdown) {
+    themeSelectorBtn.addEventListener('click', toggleThemeSelector);
+    themeOptions.forEach(option => {
+      option.addEventListener('click', () => selectTheme(option));
+    });
+    document.addEventListener('click', closeThemeSelectorOnClickOutside);
+  }
+  
   toastClose.addEventListener('click', () => errorToast.classList.add('hidden'));
   
   // Add event listener for success toast close button if it exists
