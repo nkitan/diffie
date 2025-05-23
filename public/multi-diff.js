@@ -703,93 +703,179 @@ document.addEventListener('DOMContentLoaded', () => {
     const file1Content = resultItem.querySelector('.file1-content');
     const file2Content = resultItem.querySelector('.file2-content');
     if (!file1Content || !file2Content) return;
+
+    // In raw mode, request the original file contents from the server
+    if (rawModeEnabled) {
+        const file1Path = resultItem.querySelector('.file-path-link[data-path]')?.getAttribute('data-path');
+        const file2Path = resultItem.querySelectorAll('.file-path-link[data-path]')?.[1]?.getAttribute('data-path');
+        
+        if (file1Path && file2Path) {
+            // Get original file contents
+            Promise.all([
+                fetch(`/api/file-content?path=${encodeURIComponent(file1Path)}`),
+                fetch(`/api/file-content?path=${encodeURIComponent(file2Path)}`)
+            ])
+            .then(responses => Promise.all(responses.map(r => r.text())))
+            .then(([content1, content2]) => {
+                renderRawContent(content1, file1Content);
+                renderRawContent(content2, file2Content);
+                
+                // Apply raw mode styling
+                const diffViewContent = resultItem.querySelector('.diff-view-content');
+                if (diffViewContent) {
+                    diffViewContent.classList.add('raw-mode');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching raw file contents:', error);
+                // Fallback to diff-based rendering if fetch fails
+                renderDiffContent(diffText, resultItem);
+            });
+            return;
+        }
+    }
+
+    // Normal diff rendering for non-raw mode
+    renderDiffContent(diffText, resultItem);
+}
+
+function renderDiffContent(diffText, resultItem) {
+    const file1Content = resultItem.querySelector('.file1-content');
+    const file2Content = resultItem.querySelector('.file2-content');
+    if (!file1Content || !file2Content) return;
+
     file1Content.innerHTML = '';
     file2Content.innerHTML = '';
+
     const lines = diffText.split('\n');
     let inHeader = true;
     let file1LineNumber = 0;
     let file2LineNumber = 0;
     let currentHunk = 0;
     let skipFirstHunk = false;
-    // Check if the first hunk is just a filename diff (we want to skip it)
+
+    // Check if the first hunk is just a filename diff
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('@@')) {
-        const nextLine = lines[i+1] || '';
-        const nextNextLine = lines[i+2] || '';
-        const nextNextNextLine = lines[i+3] || '';
-        if (nextLine.startsWith('-') && nextNextLine.startsWith('+') && 
-            (nextNextNextLine.startsWith('@@') || nextNextNextLine === '')) {
-          skipFirstHunk = true;
+        if (lines[i].startsWith('@@')) {
+            const nextLine = lines[i+1] || '';
+            const nextNextLine = lines[i+2] || '';
+            const nextNextNextLine = lines[i+3] || '';
+            if (nextLine.startsWith('-') && nextNextLine.startsWith('+') && 
+                (nextNextNextLine.startsWith('@@') || nextNextNextLine === '')) {
+                skipFirstHunk = true;
+            }
+            break;
         }
-        break;
-      }
     }
+
     // Alignment buffers
     let leftBuffer = [];
     let rightBuffer = [];
+
     function flushBuffers() {
-      while (leftBuffer.length < rightBuffer.length) leftBuffer.push({ type: 'empty', lineNumber: '', content: '' });
-      while (rightBuffer.length < leftBuffer.length) rightBuffer.push({ type: 'empty', lineNumber: '', content: '' });
-      for (let i = 0; i < leftBuffer.length; i++) {
-        const l = leftBuffer[i];
-        const r = rightBuffer[i];
-        if (l.type === 'empty') {
-          appendLine(file1Content, '', '', 'empty');
+        // Only add empty lines if there's a meaningful relationship between left and right
+        const leftHasContent = leftBuffer.some(item => item.type !== 'empty');
+        const rightHasContent = rightBuffer.some(item => item.type !== 'empty');
+
+        // Special handling for deletions followed by a single addition
+        if (leftBuffer.length > 1 && leftBuffer.every(item => item.type === 'deletion') && 
+            rightBuffer.length === 1 && rightBuffer[0].type === 'addition') {
+            // Don't pad with empty lines, just show deletions and the single addition aligned at top
+            leftBuffer.forEach((l, i) => {
+                appendLine(file1Content, l.lineNumber, l.content, l.type);
+                if (i === 0) {
+                    // Show the addition aligned with first deletion
+                    appendLine(file2Content, rightBuffer[0].lineNumber, rightBuffer[0].content, rightBuffer[0].type);
+                } else {
+                    // No empty lines needed for remaining deletions
+                    appendLine(file2Content, '', '', 'empty');
+                }
+            });
         } else {
-          appendLine(file1Content, l.lineNumber, l.content, l.type);
+            // Normal case: render both buffers with proper alignment
+            const maxLength = Math.max(leftBuffer.length, rightBuffer.length);
+            for (let i = 0; i < maxLength; i++) {
+                const l = i < leftBuffer.length ? leftBuffer[i] : { type: 'empty', lineNumber: '', content: '' };
+                const r = i < rightBuffer.length ? rightBuffer[i] : { type: 'empty', lineNumber: '', content: '' };
+                
+                appendLine(file1Content, l.lineNumber, l.content, l.type);
+                appendLine(file2Content, r.lineNumber, r.content, r.type);
+            }
         }
-        if (r.type === 'empty') {
-          appendLine(file2Content, '', '', 'empty');
-        } else {
-          appendLine(file2Content, r.lineNumber, r.content, r.type);
-        }
-      }
-      leftBuffer = [];
-      rightBuffer = [];
+
+        leftBuffer = [];
+        rightBuffer = [];
     }
+
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      if (inHeader && (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff') || line.startsWith('index'))) {
-        continue;
-      }
-      if (line.startsWith('@@')) {
+        const line = lines[i];
+        if (inHeader && (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff') || line.startsWith('index'))) {
+            continue;
+        }
+
+        if (line.startsWith('@@')) {
+            inHeader = false;
+            currentHunk++;
+            if (skipFirstHunk && currentHunk === 1) {
+                while (i < lines.length && !lines[i].startsWith('@@')) { i++; }
+                i--;
+                continue;
+            }
+            const match = line.match(/@@ -(\d+),\d+ \+(\d+),\d+ @@/);
+            if (match) {
+                file1LineNumber = parseInt(match[1]) - 1;
+                file2LineNumber = parseInt(match[2]) - 1;
+            }
+            flushBuffers();
+            continue;
+        }
+
         inHeader = false;
-        currentHunk++;
-        if (skipFirstHunk && currentHunk === 1) {
-          while (i < lines.length && !lines[i].startsWith('@@')) { i++; }
-          i--;
-          continue;
+
+        // Group related changes
+        if (line.startsWith('-')) {
+            // Look ahead for related additions
+            let j = i + 1;
+            let additionCount = 0;
+            while (j < lines.length && lines[j].startsWith('+')) {
+                additionCount++;
+                j++;
+            }
+
+            // Add current deletion to left buffer
+            file1LineNumber++;
+            leftBuffer.push({ type: 'deletion', lineNumber: file1LineNumber, content: line.substring(1) });
+
+            // If there are additions following, process them
+            if (additionCount > 0) {
+                for (let k = 0; k < additionCount; k++) {
+                    i++;
+                    file2LineNumber++;
+                    rightBuffer.push({ type: 'addition', lineNumber: file2LineNumber, content: lines[i].substring(1) });
+                }
+                flushBuffers();
+            }
+            // For consecutive deletions, wait before flushing
+            else if (!lines[i + 1]?.startsWith('-')) {
+                flushBuffers();
+            }
+        } else if (line.startsWith('+')) {
+          file2LineNumber++;
+          rightBuffer.push({ type: 'addition', lineNumber: file2LineNumber, content: line.substring(1) });
+          flushBuffers();
+        } else if (line.startsWith(' ')) {
+          file1LineNumber++;
+          file2LineNumber++;
+          leftBuffer.push({ type: 'context', lineNumber: file1LineNumber, content: line.substring(1) });
+          rightBuffer.push({ type: 'context', lineNumber: file2LineNumber, content: line.substring(1) });
+          flushBuffers();
         }
-        const match = line.match(/@@ -(\d+),\d+ \+(\d+),\d+ @@/);
-        if (match) {
-          file1LineNumber = parseInt(match[1]) - 1;
-          file2LineNumber = parseInt(match[2]) - 1;
-        }
-        flushBuffers();
-        continue;
-      }
-      inHeader = false;
-      if (line.startsWith('-')) {
-        file1LineNumber++;
-        leftBuffer.push({ type: 'deletion', lineNumber: file1LineNumber, content: line.substring(1) });
-        rightBuffer.push({ type: 'empty', lineNumber: '', content: '' });
-      } else if (line.startsWith('+')) {
-        file2LineNumber++;
-        leftBuffer.push({ type: 'empty', lineNumber: '', content: '' });
-        rightBuffer.push({ type: 'addition', lineNumber: file2LineNumber, content: line.substring(1) });
-      } else if (line.startsWith(' ')) {
-        file1LineNumber++;
-        file2LineNumber++;
-        leftBuffer.push({ type: 'context', lineNumber: file1LineNumber, content: line.substring(1) });
-        rightBuffer.push({ type: 'context', lineNumber: file2LineNumber, content: line.substring(1) });
-      }
-      // When both buffers have a real line, flush
-      if (leftBuffer.length > 0 && rightBuffer.length > 0 &&
-          (leftBuffer[leftBuffer.length-1].type !== 'empty' && rightBuffer[rightBuffer.length-1].type !== 'empty')) {
-        flushBuffers();
-      }
     }
-    flushBuffers();
+
+    // Flush any remaining lines
+    if (leftBuffer.length > 0 || rightBuffer.length > 0) {
+        flushBuffers();
+    }
   }
   
   function renderUnifiedDiff(diffText, resultItem) {
@@ -1416,6 +1502,9 @@ document.addEventListener('DOMContentLoaded', () => {
             background-color: #fee2e2;
             color: #991b1b;
           }
+          .line.empty {
+            background-color: #f9fafb;
+          }
           .side-by-side-container {
             width: 100%;
             border: 1px solid #eaeaea;
@@ -1994,4 +2083,127 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(message);
     }
   }
+  
+  // Add collapse functionality
+  const multiFileHeader = document.querySelector('.multi-file-header');
+  const multiFileContainer = document.querySelector('.multi-file-container');
+  const pairCount = document.querySelector('.pair-count');
+  
+  function updatePairCount() {
+    const count = document.querySelectorAll('.file-pair').length;
+    pairCount.textContent = `(${count})`;
+  }
+  
+  multiFileHeader.addEventListener('click', () => {
+    multiFileContainer.classList.toggle('collapsed');
+  });
+  
+  // Update pair count when pairs are added or removed
+  const observer = new MutationObserver(updatePairCount);
+  observer.observe(filePairsContainer, { childList: true });
+  
+  // Initial pair count
+  updatePairCount();
+  
+  // Raw mode state variable
+  let rawModeEnabled = false;
+  
+  // Add raw mode button event listeners
+  const rawModeBtn = document.getElementById('raw-mode-btn');
+  const multiRawModeBtn = document.getElementById('multi-raw-mode-btn');
+  
+  if (rawModeBtn) {
+    rawModeBtn.addEventListener('click', () => toggleRawMode(false));
+  }
+  
+  if (multiRawModeBtn) {
+    multiRawModeBtn.addEventListener('click', () => toggleRawMode(true));
+  }
+  
+  function toggleRawMode(isMulti) {
+    rawModeEnabled = !rawModeEnabled;
+    
+    const container = isMulti ? multiDiffContainer : singleDiffContainer;
+    const rawModeButton = isMulti ? multiRawModeBtn : rawModeBtn;
+    
+    rawModeButton.classList.toggle('active', rawModeEnabled);
+    
+    // Toggle raw mode class on all diff view contents
+    container.querySelectorAll('.diff-view-content').forEach(content => {
+      content.classList.toggle('raw-mode', rawModeEnabled);
+    });
+    
+    // If raw mode is enabled, hide empty lines and reset background colors
+    if (rawModeEnabled) {
+      container.querySelectorAll('.line.empty').forEach(line => {
+        line.style.display = 'none';
+      });
+      container.querySelectorAll('.line').forEach(line => {
+        line.style.background = 'none';
+      });
+    } else {
+      // Restore normal view
+      container.querySelectorAll('.line.empty').forEach(line => {
+        line.style.display = '';
+      });
+      container.querySelectorAll('.line').forEach(line => {
+        line.style.background = '';
+      });
+    }
+  }
+  
+  // Modify renderSideBySideDiff to respect raw mode
+  const originalRenderSideBySideDiff = renderSideBySideDiff;
+  renderSideBySideDiff = function(diffText, resultItem) {
+    originalRenderSideBySideDiff(diffText, resultItem);
+    
+    // Apply raw mode if it's enabled
+    if (rawModeEnabled) {
+      const diffViewContent = resultItem.querySelector('.diff-view-content');
+      if (diffViewContent) {
+        diffViewContent.classList.add('raw-mode');
+        diffViewContent.querySelectorAll('.line.empty').forEach(line => {
+          line.style.display = 'none';
+        });
+        diffViewContent.querySelectorAll('.line').forEach(line => {
+          line.style.background = 'none';
+        });
+      }
+    }
+  };
+  
+  function renderRawContent(lines, resultItem, isFile1) {
+    const container = isFile1 ? resultItem.querySelector('.file1-content') : resultItem.querySelector('.file2-content');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    let lineNumber = 1;
+    
+    lines.split('\n').forEach(line => {
+        // Skip diff markers
+        if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('@@')) {
+            return;
+        }
+        
+        // Remove diff markers if present
+        const content = line.startsWith('-') || line.startsWith('+') || line.startsWith(' ') 
+            ? line.substring(1) 
+            : line;
+            
+        const lineEl = document.createElement('div');
+        lineEl.className = 'line context';
+        
+        const lineNumberEl = document.createElement('div');
+        lineNumberEl.className = 'line-number';
+        lineNumberEl.textContent = lineNumber++;
+        
+        const lineContentEl = document.createElement('div');
+        lineContentEl.className = 'line-content';
+        lineContentEl.textContent = content;
+        
+        lineEl.appendChild(lineNumberEl);
+        lineEl.appendChild(lineContentEl);
+        container.appendChild(lineEl);
+    });
+}
 });

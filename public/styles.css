@@ -2280,3 +2280,65 @@ footer::before {
   vertical-align: middle;
   font-size: 1.2em;
 }
+
+.multi-file-container {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.multi-file-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  cursor: pointer;
+}
+
+.multi-file-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.collapse-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.multi-file-container.collapsed .collapse-toggle {
+  transform: rotate(0deg);
+}
+
+.multi-file-container:not(.collapsed) .collapse-toggle {
+  transform: rotate(90deg);
+}
+
+.multi-file-content {
+  transition: max-height 0.3s ease-out;
+  overflow: hidden;
+}
+
+.multi-file-container.collapsed .multi-file-content {
+  max-height: 0;
+  padding: 0;
+  border-bottom: none;
+}
+
+.multi-file-container:not(.collapsed) .multi-file-content {
+  max-height: 2000px;
+  padding: 1rem;
+}
+
+.pair-count {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}

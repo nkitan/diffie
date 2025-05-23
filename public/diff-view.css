@@ -1,0 +1,141 @@
+.diff-view-content {
+  display: flex;
+  width: 100%;
+}
+
+.file1-content,
+.file2-content {
+  flex: 1;
+  font-family: 'Roboto Mono', monospace;
+  min-width: 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+  border-right: 1px solid var(--border-color);
+}
+
+.file2-content {
+  border-right: none;
+}
+
+.line {
+  display: flex;
+  padding: 0 8px;
+  min-height: 22px;
+  position: relative;
+}
+
+.line.deletion {
+  background-color: var(--deletion-bg-color, rgba(248, 81, 73, 0.15));
+}
+
+.line.deletion:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--deletion-color, #e5534b);
+}
+
+.line.addition {
+  background-color: var(--addition-bg-color, rgba(46, 160, 67, 0.15));
+}
+
+.line.addition:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--addition-color, #2ea043);
+}
+
+.line.empty {
+  background-color: transparent;
+}
+
+.line-number {
+  user-select: none;
+  color: var(--line-number-color, #6e7681);
+  text-align: right;
+  width: 40px;
+  padding-right: 16px;
+  margin-right: 16px;
+  border-right: 1px solid var(--border-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.line-content {
+  padding-left: 8px;
+  white-space: pre;
+  overflow-x: auto;
+  flex: 1;
+}
+
+/* When word wrap is enabled */
+.word-wrap .line-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Dark theme adjustments */
+.dark-theme .line.deletion,
+[data-theme*="-dark"] .line.deletion {
+  background-color: var(--deletion-bg-color-dark, rgba(248, 81, 73, 0.1));
+}
+
+.dark-theme .line.addition,
+[data-theme*="-dark"] .line.addition {
+  background-color: var(--addition-bg-color-dark, rgba(46, 160, 67, 0.1));
+}
+
+/* Invert the color order for better visibility in dark mode */
+.dark-theme .line.deletion:before,
+[data-theme*="-dark"] .line.deletion:before {
+  background-color: var(--deletion-color-dark, #f85149);
+}
+
+.dark-theme .line.addition:before,
+[data-theme*="-dark"] .line.addition:before {
+  background-color: var(--addition-color-dark, #2ea043);
+}
+
+/* Raw mode adjustments */
+.raw-mode .line {
+  background: none !important;
+  border: none !important;
+}
+
+.raw-mode .line.context {
+  display: flex !important;
+}
+
+.raw-mode .line:before {
+  display: none !important;
+}
+
+.raw-mode .line-content {
+  color: var(--text-primary) !important;
+  white-space: pre;
+}
+
+.raw-mode .line-number {
+  color: var(--text-secondary) !important;
+  opacity: 0.7;
+  min-width: 3em;
+  padding-right: 1em;
+  text-align: right;
+  user-select: none;
+}
+
+.raw-mode.diff-view-content {
+  gap: 2rem;
+}
+
+.raw-mode .file1-content,
+.raw-mode .file2-content {
+  flex: 1;
+  overflow-x: auto;
+}

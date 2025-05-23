@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diffie</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="themes.css">
+  <link rel="stylesheet" href="diff-view.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -238,23 +238,32 @@
           </button>
         </div>
       </div>
-      
-      <div class="tab-content hidden" id="multi-files-tab">
-        <div class="multi-file-container">
-          <div class="multi-file-controls">
-            <button id="add-file-pair-btn" class="secondary-btn">
-              <i class="fas fa-plus"></i>
-              Add File Pair
-            </button>
-            <button id="compare-multi-btn" class="primary-btn">
-              <i class="fas fa-code-compare"></i>
-              Compare All Files
-            </button>
-            <button id="generate-report-btn" class="secondary-btn">
-              <i class="fas fa-file-export"></i>
-              Generate Report
-            </button>
+        <div class="tab-content hidden" id="multi-files-tab">
+        <div class="multi-file-container collapsed">
+          <div class="multi-file-header">
+            <div class="multi-file-title">
+              <button class="collapse-toggle" title="Toggle file pairs">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              <span>File Pairs</span>
+              <span class="pair-count">(1)</span>
+            </div>
           </div>
+          <div class="multi-file-content">
+            <div class="multi-file-controls">
+              <button id="add-file-pair-btn" class="secondary-btn">
+                <i class="fas fa-plus"></i>
+                Add File Pair
+              </button>
+              <button id="compare-multi-btn" class="primary-btn">
+                <i class="fas fa-code-compare"></i>
+                Compare All Files
+              </button>
+              <button id="generate-report-btn" class="secondary-btn">
+                <i class="fas fa-file-export"></i>
+                Generate Report
+              </button>
+            </div>
           
           <div id="file-pairs-container">
             <div class="file-pair" data-pair-id="0">
@@ -308,9 +317,11 @@
             </button>
             <button id="line-numbers-btn" class="control-btn active" title="Hide line numbers">
               <i class="fas fa-list-ol"></i>
-            </button>
-            <button id="show-complete-btn" class="control-btn" title="Show complete files">
+            </button>            <button id="show-complete-btn" class="control-btn" title="Show complete files">
               <i class="fas fa-file-alt"></i>
+            </button>
+            <button id="raw-mode-btn" class="control-btn" title="Toggle raw mode (no diff highlighting)">
+              <i class="fas fa-code"></i>
             </button>
             <button id="share-btn" class="control-btn" title="Share this diff">
               <i class="fas fa-share-alt"></i>
@@ -397,9 +408,11 @@
               <i class="fas fa-compress-alt"></i>
             </button>            <button id="multi-expand-all-btn" class="control-btn" title="Expand all diffs">
               <i class="fas fa-expand-alt"></i>
-            </button>
-            <button id="multi-focus-mode-btn" class="control-btn" title="Enter focus mode">
+            </button>            <button id="multi-focus-mode-btn" class="control-btn" title="Enter focus mode">
               <i class="fas fa-compress"></i>
+            </button>
+            <button id="multi-raw-mode-btn" class="control-btn" title="Toggle raw mode (no diff highlighting)">
+              <i class="fas fa-code"></i>
             </button>
             <button id="multi-share-btn" class="control-btn" title="Share this diff">
               <i class="fas fa-share-alt"></i>
